@@ -4,6 +4,11 @@ A virtual reality component for Framer. The virtual enviroment is created using 
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
+## Examples
+- [Base setup](http://share.framerjs.com/nbm68qngj9oi/)
+- [Event data](http://share.framerjs.com/6ui2dok637qt/)
+- [VR shape puzzle](http://share.framerjs.com/vfa1wqhsqldw/)
+
 ## Properties
 - **`front`** (set: imagePath *\<string>*, get: layer)
 - **`right`** (set: imagePath *\<string>*, get: layer)
