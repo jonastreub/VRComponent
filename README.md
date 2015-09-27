@@ -51,6 +51,13 @@ vr.augmentLayer(layer)
 ## Events
 - **`Events.OrientationDidChange`**, (heading, elevation, tilt)
 
+```coffee
+vr.on Events.OrientationDidChange, (data) ->
+	heading = data.heading
+	elevation = data.elevation
+	tilt = data.tilt
+```
+
 ## Future plans
 - Integrate support for Google Street View panoramas
 - Add support for spheremap projection (WebGL)
