@@ -1,6 +1,6 @@
 # VRComponent
 
-A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be augmented on top of the virtual environment using a `heading` and `elevation`.
+A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be augmented on top of the virtual environment. Augmented layeres are positioned using `heading` and `elevation` values.
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
