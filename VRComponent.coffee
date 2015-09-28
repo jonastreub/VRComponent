@@ -41,14 +41,14 @@ Events.OrientationDidChange = "orientationdidchange"
 class exports.VRComponent extends Layer
 
 	constructor: (options = {}) ->
-		super
 		options = _.defaults options,
 			cubeSide: 3000
-			perspective: 800
+			perspective: 1200
 			lookAtLatestAugmentedLayer: false
+			width: Screen.width
+			height: Screen.height
+		super options
 		@perspective = options.perspective
-		@width = Screen.width
-		@height = Screen.height
 		@backgroundColor = null
 		@createCube(options.cubeSide)
 		@degToRad = Math.PI / 180
@@ -201,7 +201,7 @@ class exports.VRComponent extends Layer
 		if layer
 			layer.image
 
-	augmentLayer: (insertLayer, heading, elevation) ->
+	addSubLayer: (insertLayer, heading, elevation) ->
 		layer = new Layer
 			width: 0, height:0
 			clip: false
@@ -212,9 +212,12 @@ class exports.VRComponent extends Layer
 
 		if heading == undefined
 			heading = insertLayer.heading
+			if heading == undefined
+				heading = 0
 		if elevation == undefined
 			elevation = insertLayer.elevation
-
+			if elevation == undefined
+				elevation = 0
 		elevation = Utils.clamp(elevation, -90, 90)
 		halfCubSide = @cubeSide/2
 		layer.style["webkitTransform"] = "translateX(#{(@cubeSide - layer.width)/2}px) translateY(#{(@cubeSide - layer.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
@@ -240,8 +243,8 @@ class exports.VRComponent extends Layer
 
 			halfCubSide = @cubeSide/2
 			orientation = "rotate(#{window.orientation * -1}deg) "
-			translationX = "translateX(#{(Screen.width / 2) - halfCubSide}px)"
-			translationY = " translateY(#{(Screen.height / 2) - halfCubSide}px)"
+			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
+			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)"
 			@cube.style["webkitTransform"] = rotation
 
@@ -340,12 +343,12 @@ class exports.VRComponent extends Layer
 		
 		@desktopOrientationLayer.on Events.AnimationEnd, =>
 			@desktopDraggableActive = false
-			@center()
+			@desktopOrientationLayer?.center()
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubSide = @cubeSide/2
-		translationX = "translateX(#{(Screen.width / 2) - halfCubSide}px)"
-		translationY = " translateY(#{(Screen.height / 2) - halfCubSide}px)"
+		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
+		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 		@currentDesktopDir += deltaDir
 
 		if @currentDesktopDir > 360
@@ -365,8 +368,8 @@ class exports.VRComponent extends Layer
 
 	lookAt: (heading, elevation) ->
 		halfCubSide = @cubeSide/2
-		translationX = "translateX(#{(Screen.width / 2) - halfCubSide}px)"
-		translationY = " translateY(#{(Screen.height / 2) - halfCubSide}px)"
+		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
+		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 		@cube.style["webkitTransform"] = rotation
 		@currentDesktopDir = -heading

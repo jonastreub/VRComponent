@@ -1,6 +1,6 @@
 # VRComponent
 
-A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be augmented on top of the virtual environment. Augmented layeres are positioned using `heading` and `elevation` values.
+A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be projected on top of the virtual environment. Projected layeres are positioned using `heading` and `elevation` values.
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
@@ -34,22 +34,22 @@ vr = new VRComponent
 ```
 
 ## Functions
-- **`augmentLayer`(**layer, heading, elevation**)**
+- **`addSubLayer`(**layer, heading, elevation**)**
 - **`hideCube`()**
 
 ```coffee
-# either augment a layer by giving the heading and elevation as function parameters
+# either project a layer by giving the heading and elevation as function parameters
 layer = new Layer
-vr.augmentLayer(layer, 230, 10)
+vr.addSubLayer(layer, 230, 10)
 
-# or set these values on the layer before augmenting
+# or set these values on the layer before adding
 layer.heading = 230
 layer.elevation = 10
-vr.augmentLayer(layer)
+vr.addSubLayer(layer)
 ```
 
 ## Events
-- **`Events.OrientationDidChange`**, (heading, elevation, tilt)
+- **`Events.OrientationDidChange`**, (data *\<object>* {heading, elevation, tilt})
 
 ```coffee
 vr.on Events.OrientationDidChange, (data) ->
