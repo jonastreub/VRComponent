@@ -19,7 +19,7 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number>* (-180 to 180 degrees)
-- **`lookAtLatestAugmentedLayer`** *\<bool>*
+- **`lookAtLatestSubLayer`** *\<bool>*
 
 ```coffee
 {VRComponent} = require "VRComponent"
@@ -49,7 +49,7 @@ vr.addSubLayer(layer)
 ```
 
 ## Events
-- **`Events.OrientationDidChange`**, (data *\<object>* {heading, elevation, tilt})
+- **`Events.OrientationDidChange`**, (*\<object>* {heading, elevation, tilt})
 
 ```coffee
 vr.on Events.OrientationDidChange, (data) ->

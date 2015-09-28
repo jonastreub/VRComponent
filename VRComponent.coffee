@@ -12,14 +12,14 @@ properties
 - elevation <number>
 - tilt <number>
 
-- lookAtLatestAugmentedLayer (bool)
+- lookAtLatestSubLayer (bool)
 
 methods
-- augmentLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
+- addSubLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
 - hideCube()
 
 events
-- Events.OrientationDidChange, (heading, elevation, tilt)
+- Events.OrientationDidChange, (data {heading, elevation, tilt})
 
 """
 
@@ -44,7 +44,7 @@ class exports.VRComponent extends Layer
 		options = _.defaults options,
 			cubeSide: 3000
 			perspective: 1200
-			lookAtLatestAugmentedLayer: false
+			lookAtLatestSubLayer: false
 			width: Screen.width
 			height: Screen.height
 		super options
@@ -53,7 +53,7 @@ class exports.VRComponent extends Layer
 		@createCube(options.cubeSide)
 		@degToRad = Math.PI / 180
 		@layersToKeepLevel = []
-		@lookAtLatestAugmentedLayer = options.lookAtLatestAugmentedLayer
+		@lookAtLatestSubLayer = options.lookAtLatestSubLayer
 
 		@_heading = 0
 		@_elevation = 0
@@ -221,7 +221,7 @@ class exports.VRComponent extends Layer
 		elevation = Utils.clamp(elevation, -90, 90)
 		halfCubSide = @cubeSide/2
 		layer.style["webkitTransform"] = "translateX(#{(@cubeSide - layer.width)/2}px) translateY(#{(@cubeSide - layer.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
-		if @lookAtLatestAugmentedLayer
+		if @lookAtLatestSubLayer
 			@lookAt(heading, elevation)
 
 	# Mobile device orientation
