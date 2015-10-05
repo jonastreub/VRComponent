@@ -1,6 +1,6 @@
 # VRComponent
 
-A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be projected on top of the virtual environment. Projected layeres are positioned using `heading` and `elevation` values.
+A virtual reality component for [Framer](http://framerjs.com). The virtual enviroment is created using the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping). The cube requires six images, one for each side. Your own layers can be projected on top of the virtual environment. Projected layers are positioned using `heading` and `elevation` values.
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
@@ -19,7 +19,7 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number>* (-180 to 180 degrees)
-- **`lookAtLatestSubLayer`** *\<bool>*
+- **`lookAtLatestProjectedLayer`** *\<bool>*
 
 ```coffee
 {VRComponent} = require "VRComponent"
@@ -34,18 +34,18 @@ vr = new VRComponent
 ```
 
 ## Functions
-- **`addSubLayer`(**layer, heading, elevation**)**
+- **`projectLayer`(**layer, heading, elevation**)**
 - **`hideCube`()**
 
 ```coffee
 # either project a layer by giving the heading and elevation as function parameters
 layer = new Layer
-vr.addSubLayer(layer, 230, 10)
+vr.projectLayer(layer, 230, 10)
 
-# or set these values on the layer before adding
+# or set these values on the layer before projecting
 layer.heading = 230
 layer.elevation = 10
-vr.addSubLayer(layer)
+vr.projectLayer(layer)
 ```
 
 ## Events

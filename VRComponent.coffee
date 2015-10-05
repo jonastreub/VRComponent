@@ -44,7 +44,7 @@ class exports.VRComponent extends Layer
 		options = _.defaults options,
 			cubeSide: 3000
 			perspective: 1200
-			lookAtLatestSubLayer: false
+			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
 		super options
@@ -53,7 +53,7 @@ class exports.VRComponent extends Layer
 		@createCube(options.cubeSide)
 		@degToRad = Math.PI / 180
 		@layersToKeepLevel = []
-		@lookAtLatestSubLayer = options.lookAtLatestSubLayer
+		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
 
 		@_heading = 0
 		@_elevation = 0
@@ -201,13 +201,13 @@ class exports.VRComponent extends Layer
 		if layer
 			layer.image
 
-	addSubLayer: (insertLayer, heading, elevation) ->
-		layer = new Layer
+	projectLayer: (insertLayer, heading, elevation) ->
+		anchor = new Layer
 			width: 0, height:0
 			clip: false
 			name: "augmentAnchor"
-		layer.superLayer = @cube
-		insertLayer.superLayer = layer
+		anchor.superLayer = @cube
+		insertLayer.superLayer = anchor
 		insertLayer.center()
 
 		if heading == undefined
@@ -220,9 +220,12 @@ class exports.VRComponent extends Layer
 				elevation = 0
 		elevation = Utils.clamp(elevation, -90, 90)
 		halfCubSide = @cubeSide/2
-		layer.style["webkitTransform"] = "translateX(#{(@cubeSide - layer.width)/2}px) translateY(#{(@cubeSide - layer.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
-		if @lookAtLatestSubLayer
+		anchor.style["webkitTransform"] = "translateX(#{(@cubeSide - anchor.width)/2}px) translateY(#{(@cubeSide - anchor.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
+		if @lookAtLatestProjectedLayer
 			@lookAt(heading, elevation)
+
+		Framer.CurrentContext.on "layer:destroy", (layer) ->
+			print "layer removed: #{layer.name}"
 
 	# Mobile device orientation
 
