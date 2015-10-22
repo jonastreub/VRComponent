@@ -85,6 +85,9 @@ class exports.VRComponent extends Layer
 			Framer.Loop.on "update", =>
 				@deviceOrientationUpdate()
 
+		@on "change:frame", ->
+			@desktopPan(0,0)
+
 	_keys: ->
 		document.addEventListener "keydown", (event) =>
 			if @arrowKeys
