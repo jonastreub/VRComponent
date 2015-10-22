@@ -12,10 +12,11 @@ properties
 - elevation <number>
 - tilt <number>
 
-- lookAtLatestSubLayer (bool)
+- arrowKeys <bool>
+- lookAtLatestProjectedLayer <bool>
 
 methods
-- addSubLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
+- projectLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
 - hideCube()
 
 events
@@ -54,6 +55,7 @@ class exports.VRComponent extends Layer
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
+			arrowKeys: true
 		super options
 		@perspective = options.perspective
 		@backgroundColor = null
@@ -61,6 +63,8 @@ class exports.VRComponent extends Layer
 		@degToRad = Math.PI / 180
 		@layersToKeepLevel = []
 		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
+		@arrowKeys = options.arrowKeys
+		@_keys()
 
 		@_heading = 0
 		@_elevation = 0
@@ -75,31 +79,34 @@ class exports.VRComponent extends Layer
 			Framer.Loop.on "update", =>
 				@deviceOrientationUpdate()
 
-		# update screen on orientation change
-		if Utils.isMobile()
-			window.onresize = =>
-				@screenOrientationUpdate()
-		else
-			Framer.Device.on "change:orientation", =>
-				@screenOrientationUpdate(true)
-
-		@useArrowKeys()
-
-	useArrowKeys: ->
+	_keys: ->
 		document.addEventListener "keydown", (event) =>
-			switch event.which
-				when KEYS.UpArrow
-					@desktopPan(0, 1)
-					event.preventDefault()
-				when KEYS.DownArrow
-					@desktopPan(0, -1)
-					event.preventDefault()
-				when KEYS.LeftArrow
-					@desktopPan(1, 0)
-					event.preventDefault()
-				when KEYS.RightArrow
-					@desktopPan(-1, 0)
-					event.preventDefault()
+			if @arrowKeys
+
+				if @_lastCall != undefined
+					diff = new Date() - @_lastCall
+					if diff < 200
+						@_acceleration += .1
+					else
+						@_acceleration = 1
+				else
+					@_acceleration = 1
+
+				@_lastCall = new Date()
+
+				switch event.which
+					when KEYS.UpArrow
+						@desktopPan(0, 1 * @_acceleration)
+						event.preventDefault()
+					when KEYS.DownArrow
+						@desktopPan(0, -1 * @_acceleration)
+						event.preventDefault()
+					when KEYS.LeftArrow
+						@desktopPan(1 * @_acceleration, 0)
+						event.preventDefault()
+					when KEYS.RightArrow
+						@desktopPan(-1 * @_acceleration, 0)
+						event.preventDefault()
 
 	@define "heading",
 		get: -> @_heading
@@ -174,16 +181,6 @@ class exports.VRComponent extends Layer
 	hideCube: ->
 		for side in @sides
 			side.destroy()
-
-	screenOrientationUpdate: (desktop=false) =>
-		if desktop
-			@width = Screen.height
-			@height = Screen.width
-		else
-			@width = Screen.width
-			@height = Screen.height
-
-		@cube?.center()
 
 	layerFromFace: (face) ->
 		map =
