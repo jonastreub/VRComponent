@@ -45,6 +45,13 @@ KEYS = {
 	DownArrow: 40
 }
 
+KEYSDOWN = {
+	left: false
+	up: false
+	right: false
+	down: false
+}
+
 Events.OrientationDidChange = "orientationdidchange"
 
 class exports.VRComponent extends Layer
@@ -82,8 +89,9 @@ class exports.VRComponent extends Layer
 		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
 				@orientationData = event
-			Framer.Loop.on "update", =>
-				@deviceOrientationUpdate()
+
+		Framer.Loop.on "update", =>
+			@deviceOrientationUpdate()
 
 		@on "change:frame", ->
 			@desktopPan(0,0)
@@ -91,31 +99,41 @@ class exports.VRComponent extends Layer
 	_keys: ->
 		document.addEventListener "keydown", (event) =>
 			if @arrowKeys
-
-				if @_lastCall != undefined
-					diff = new Date() - @_lastCall
-					if diff < 200
-						@_acceleration += .1
-					else
-						@_acceleration = 1
-				else
-					@_acceleration = 1
-
-				@_lastCall = new Date()
-
 				switch event.which
 					when KEYS.UpArrow
-						@desktopPan(0, 1 * @_acceleration)
+						KEYSDOWN.up = true
 						event.preventDefault()
 					when KEYS.DownArrow
-						@desktopPan(0, -1 * @_acceleration)
+						KEYSDOWN.down = true
 						event.preventDefault()
 					when KEYS.LeftArrow
-						@desktopPan(1 * @_acceleration, 0)
+						KEYSDOWN.left = true
 						event.preventDefault()
 					when KEYS.RightArrow
-						@desktopPan(-1 * @_acceleration, 0)
+						KEYSDOWN.right = true
 						event.preventDefault()
+
+		document.addEventListener "keyup", (event) =>
+			if @arrowKeys
+				switch event.which
+					when KEYS.UpArrow
+						KEYSDOWN.up = false
+						event.preventDefault()
+					when KEYS.DownArrow
+						KEYSDOWN.down = false
+						event.preventDefault()
+					when KEYS.LeftArrow
+						KEYSDOWN.left = false
+						event.preventDefault()
+					when KEYS.RightArrow
+						KEYSDOWN.right = false
+						event.preventDefault()
+
+		window.onblur = ->
+			KEYSDOWN.up = false
+			KEYSDOWN.down = false
+			KEYSDOWN.left = false
+			KEYSDOWN.right = false
 
 	@define "orientationLayer",
 		get: -> return @desktopOrientationLayer != null && @desktopOrientationLayer != undefined
@@ -269,7 +287,59 @@ class exports.VRComponent extends Layer
 
 	deviceOrientationUpdate: =>
 
-		if @orientationData
+		if Utils.isDesktop()
+			if @arrowKeys
+				if @_lastCallHorizontal == undefined
+					@_lastCallHorizontal = 0
+					@_lastCallVertical = 0
+					@_accelerationHorizontal = 1
+					@_accelerationVertical = 1
+					@_goingUp = false
+					@_goingLeft = false
+
+				date = new Date()
+				x = .1
+				if KEYSDOWN.up || KEYSDOWN.down
+					diff = date - @_lastCallVertical
+					if diff < 30
+						if @_accelerationVertical < 30
+							@_accelerationVertical += 0.18
+					if KEYSDOWN.up
+						if @_goingUp == false
+							@_accelerationVertical = 1
+							@_goingUp = true
+						@desktopPan(0, 1 * @_accelerationVertical * x)
+					else
+						if @_goingUp == true
+							@_accelerationVertical = 1
+							@_goingUp = false
+						
+						@desktopPan(0, -1 * @_accelerationVertical * x)
+					@_lastCallVertical = date
+
+				else
+					@_accelerationVertical = 1
+
+				if KEYSDOWN.left || KEYSDOWN.right
+					diff = date - @_lastCallHorizontal
+					if diff < 30
+						if @_accelerationHorizontal < 25
+							@_accelerationHorizontal += 0.18
+					if KEYSDOWN.left
+						if @_goingLeft == false
+							@_accelerationHorizontal = 1
+							@_goingLeft = true
+						@desktopPan(1 * @_accelerationHorizontal * x, 0)
+					else
+						if @_goingLeft == true
+							@_accelerationHorizontal = 1
+							@_goingLeft = false
+						@desktopPan(-1 * @_accelerationHorizontal * x, 0)
+					@_lastCallHorizontal = date
+				else
+					@_accelerationHorizontal = 1
+
+		else if @orientationData
 
 			alpha = @orientationData.alpha
 			beta = @orientationData.beta
