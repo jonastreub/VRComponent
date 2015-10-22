@@ -12,12 +12,13 @@ properties
 - elevation <number>
 - tilt <number>
 
+- orientationLayer <bool>
 - arrowKeys <bool>
 - lookAtLatestProjectedLayer <bool>
 
 methods
 - projectLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
-- hideCube()
+- hideEnviroment()
 
 events
 - Events.OrientationDidChange, (data {heading, elevation, tilt})
@@ -55,6 +56,7 @@ class exports.VRComponent extends Layer
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
+			orientationLayer: true
 			arrowKeys: true
 		super options
 		@perspective = options.perspective
@@ -66,14 +68,18 @@ class exports.VRComponent extends Layer
 		@arrowKeys = options.arrowKeys
 		@_keys()
 
+		@currentDesktopDir = 0
+		@currentDesktopHeight = 0
 		@_heading = 0
 		@_elevation = 0
 		@_tilt = 0
 
+		@orientationLayer = options.orientationLayer
+
+		@desktopPan(0, 0)
+
 		# tilting and panning
-		if Utils.isDesktop()
-			@addDesktopPanLayer()
-		else
+		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
 				@orientationData = event
 			Framer.Loop.on "update", =>
@@ -107,6 +113,16 @@ class exports.VRComponent extends Layer
 					when KEYS.RightArrow
 						@desktopPan(-1 * @_acceleration, 0)
 						event.preventDefault()
+
+	@define "orientationLayer",
+		get: -> return @desktopOrientationLayer != null && @desktopOrientationLayer != undefined
+		set: (value) ->
+			if @cube != undefined
+				if Utils.isDesktop()
+					if value == true
+						@addDesktopPanLayer()
+					else if value == false
+						@removeDesktopPanLayer()
 
 	@define "heading",
 		get: -> @_heading
@@ -178,7 +194,7 @@ class exports.VRComponent extends Layer
 			for key of @sideImages
 				@setImage key, @sideImages[key]
 
-	hideCube: ->
+	hideEnviroment: ->
 		for side in @sides
 			side.destroy()
 
@@ -245,9 +261,6 @@ class exports.VRComponent extends Layer
 		anchor.style["webkitTransform"] = "translateX(#{(@cubeSide - anchor.width)/2}px) translateY(#{(@cubeSide - anchor.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
 		if @lookAtLatestProjectedLayer
 			@lookAt(heading, elevation)
-
-		Framer.CurrentContext.on "layer:destroy", (layer) ->
-			print "layer removed: #{layer.name}"
 
 	# Mobile device orientation
 
@@ -337,11 +350,11 @@ class exports.VRComponent extends Layer
 
 	# Desktop tilt
 
+	removeDesktopPanLayer: =>
+		@desktopOrientationLayer?.destroy()
+
 	addDesktopPanLayer: =>
 		@desktopOrientationLayer?.destroy()
-		@currentDesktopDir = 0
-		@currentDesktopHeight = 0
-		@desktopPan(0, 0)
 		@desktopOrientationLayer = new Layer
 			width: 100000, height: 10000
 			backgroundColor: null

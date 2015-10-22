@@ -19,6 +19,8 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number>* (-180 to 180 degrees)
+- **`orientationLayer`** *\<bool>*
+- **`arrowKeys`** *\<bool>*
 - **`lookAtLatestProjectedLayer`** *\<bool>*
 
 ```coffee
@@ -35,7 +37,7 @@ vr = new VRComponent
 
 ## Functions
 - **`projectLayer`(**layer, heading, elevation**)**
-- **`hideCube`()**
+- **`hideEnviroment`()**
 
 ```coffee
 # either project a layer by giving the heading and elevation as function parameters
