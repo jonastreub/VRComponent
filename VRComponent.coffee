@@ -36,6 +36,13 @@ SIDES = [
 	"bottom", 
 ]
 
+KEYS = {
+	LeftArrow: 37
+	UpArrow: 38
+	RightArrow: 39
+	DownArrow: 40
+}
+
 Events.OrientationDidChange = "orientationdidchange"
 
 class exports.VRComponent extends Layer
@@ -75,6 +82,24 @@ class exports.VRComponent extends Layer
 		else
 			Framer.Device.on "change:orientation", =>
 				@screenOrientationUpdate(true)
+
+		@useArrowKeys()
+
+	useArrowKeys: ->
+		document.addEventListener "keydown", (event) =>
+			switch event.which
+				when KEYS.UpArrow
+					@desktopPan(0, 1)
+					event.preventDefault()
+				when KEYS.DownArrow
+					@desktopPan(0, -1)
+					event.preventDefault()
+				when KEYS.LeftArrow
+					@desktopPan(1, 0)
+					event.preventDefault()
+				when KEYS.RightArrow
+					@desktopPan(-1, 0)
+					event.preventDefault()
 
 	@define "heading",
 		get: -> @_heading
