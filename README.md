@@ -4,10 +4,14 @@ A virtual reality component for [Framer](http://framerjs.com). The virtual envir
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
+Read more on the associated [blogpost]().
+
 ## Examples
 - [Base setup](http://share.framerjs.com/nbm68qngj9oi/)
 - [Event data](http://share.framerjs.com/6ui2dok637qt/)
 - [VR shape puzzle](http://share.framerjs.com/vfa1wqhsqldw/)
+
+On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
 
 ## Properties
 - **`front`** (set: imagePath *\<string>*, get: layer)
@@ -19,9 +23,9 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number>* (-180 to 180 degrees)
+- **`lookAtLatestProjectedLayer`** *\<bool>*
 - **`orientationLayer`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
-- **`lookAtLatestProjectedLayer`** *\<bool>*
 
 ```coffee
 {VRComponent} = require "VRComponent"
@@ -63,4 +67,3 @@ vr.on Events.OrientationDidChange, (data) ->
 ## Future plans
 - Integrate support for Google Street View panoramas
 - Add support for spheremap projection (WebGL)
-- Hit detection of the layers in front of the viewer, and those behind the location of mouse and touch
