@@ -80,6 +80,6 @@ vr.on Events.OrientationDidChange, (data) ->
 
 To give you an idea what can be done using the VRComponent I created a puzzle. The goal of the game is to align a given shape with an identical shape found somewhere in space around you. Each time you succeed you will get the next shape.
 
-[insert GIF of and link to shape puzzle]
+[Shape puzzle](http://share.framerjs.com/qwtvejgd8y4d/)
 
 If you already have some Framer experience creating a VR prototype should not be that much different. Let me know when you run into any issues and please do not be shy to share your VR prototypes on the Facebook group. I can’t wait to see your explorations.
