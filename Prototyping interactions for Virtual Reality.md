@@ -21,6 +21,7 @@ vr = new VRComponent
 ```
 
 [insert GIF of spinning cube without textures]
+[Base setup](http://share.framerjs.com/dqsd8kr5exij/)
 
 By specifying images for all six sides, the cube seems to be replaced by the new environment.
 
@@ -35,6 +36,7 @@ vr = new VRComponent
 ```
 
 [insert GIF of spinning cube with textures]
+[VR with environment](http://share.framerjs.com/arjr2gxl3g63/)
 
 ## Projecting layers
 
@@ -71,6 +73,8 @@ vr.on Events.OrientationDidChange, (data) ->
 	elevation = data.elevation
 	tilt = data.tilt
 ```
+
+[Event data](http://share.framerjs.com/lhe5hjvrn23a/)
 
 ## Shape puzzle
 
