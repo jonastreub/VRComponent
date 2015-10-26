@@ -9,7 +9,7 @@ Read more on the associated [blogpost]().
 ## Examples
 - [Base setup](http://share.framerjs.com/dqsd8kr5exij/)
 - [Event data](http://share.framerjs.com/lhe5hjvrn23a/)
-- [VR shape puzzle](http://share.framerjs.com/vfa1wqhsqldw/)
+- [VR shape puzzle](http://share.framerjs.com/qwtvejgd8y4d/)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
 
