@@ -12,6 +12,8 @@ In the remainder of this post I will highlight the basic concepts and workings o
 
 Virtual reality replicates the physical presence in real or imagined environments. To pull the most out of the experience you might want to simulate a panoramic view all around. There are multiple ways of achieving this. The VRComponent uses the [cubemap technique](https://en.wikipedia.org/wiki/Cube_mapping) whereby the environment is projected on the sides of a cube. The user is positioned in the center of this cube while the orientation of the cube is fixed with the real world. By instantiating a VRComponent this cube shows up, although without any textures.
 
+On mobile the orientation is synced to that of your device. When viewing the prototype on desktop you can change the direction you are facing either by dragging the environment or using your arrow keys.
+
 ```coffee
 {VRComponent} = require "VRComponent"
 
@@ -34,9 +36,7 @@ vr = new VRComponent
 
 [insert GIF of spinning cube with textures]
 
-When viewing the prototypes on desktop you can change the direction you are facing either by dragging the environment or using your arrow keys.
-
-## Positioning layers
+## Projecting layers
 
 As you might know layers in Framer are positioned using a set of coordinates, the `x` and `y` values. These are otherwise known as the Cartesian coordinate system. For virtual reality we need to start thinking about the third dimension, thereby increasing the complexity.
 
