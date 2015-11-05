@@ -20,6 +20,9 @@ methods
 - projectLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
 - hideEnviroment()
 
+- lookAtLayer: (layer <Layer>, animated = true <bool>)
+- lookAtHeading(heading <number>, animated = true <bool>)
+
 events
 - Events.OrientationDidChange, (data {heading, elevation, tilt})
 
@@ -76,10 +79,14 @@ class exports.VRComponent extends Layer
 		@_keys()
 
 		@currentDesktopDir = 0
-		@currentDesktopHeight = 0
 		@_heading = 0
 		@_elevation = 0
 		@_tilt = 0
+
+		@_headingOffset = 0
+		@_elevationOffset = 0
+		@_deviceHeading = 0
+		@_deviceElevation = 0
 
 		@orientationLayer = options.orientationLayer
 
@@ -146,8 +153,16 @@ class exports.VRComponent extends Layer
 						@removeDesktopPanLayer()
 
 	@define "heading",
-		get: -> @_heading
-		set: (value) -> console.log("Heading is readonly")
+		get: -> return @_heading
+			# heading = @_heading + @_headingOffset
+			# if heading > 360
+			# 	heading = heading % 360
+			# else if heading < 0
+			# 	rest = Math.abs(heading) % 360
+
+			# return heading
+		set: (value) ->
+			@lookAt(value, @elevation)
 
 	@define "elevation",
 		get: -> @_elevation
@@ -278,10 +293,18 @@ class exports.VRComponent extends Layer
 			if elevation == undefined
 				elevation = 0
 		elevation = Utils.clamp(elevation, -90, 90)
+		insertLayer.heading = heading
+		insertLayer.elevation = elevation
 		halfCubSide = @cubeSide/2
 		anchor.style["webkitTransform"] = "translateX(#{(@cubeSide - anchor.width)/2}px) translateY(#{(@cubeSide - anchor.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
 		if @lookAtLatestProjectedLayer
 			@lookAt(heading, elevation)
+
+	lookAtLayer: (layer, animated = true) ->
+		@lookAtHeading(layer.heading, animated)
+
+	lookAtHeading: (heading, animated = true) ->
+		@lookAt(heading, @_elevation)
 
 	# Mobile device orientation
 
@@ -356,7 +379,7 @@ class exports.VRComponent extends Layer
 			orientation = "rotate(#{window.orientation * -1}deg) "
 			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)"
+			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
 			@cube.style["webkitTransform"] = rotation
 
 	directionParams: (alpha, beta, gamma) ->
@@ -419,6 +442,9 @@ class exports.VRComponent extends Layer
 			tilt = -180 + diff
 		@_tilt = tilt
 
+		@_deviceHeading = @_heading
+		@_deviceElevation = @_elevation
+
 		@_emitOrientationDidChangeEvent()
 
 	# Desktop tilt
@@ -460,20 +486,20 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-		@currentDesktopDir += deltaDir
+		@_heading -= deltaDir
 
-		if @currentDesktopDir > 360
-			@currentDesktopDir -= 360
-		else if @currentDesktopDir < 0
-			@currentDesktopDir += 360
+		if @_heading > 360
+			@_heading -= 360
+		else if @_heading < 0
+			@_heading += 360
 
-		@currentDesktopHeight += deltaHeight
-		@currentDesktopHeight = Utils.clamp(@currentDesktopHeight, -90, 90)
-		rotation = translationX + translationY + " rotateX(#{@currentDesktopHeight + 90}deg) rotateZ(#{@currentDesktopDir}deg)"
+		@_elevation += deltaHeight
+		@_elevation = Utils.clamp(@_elevation, -90, 90)
+
+		rotation = translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
 		@cube.style["webkitTransform"] = rotation
 
-		@_heading = Math.round(Math.abs(360 - @currentDesktopDir) * 1000) / 1000
-		@_elevation = @currentDesktopHeight
+		@_heading = Math.round(@_heading * 1000) / 1000
 		@_tilt = 0
 		@_emitOrientationDidChangeEvent()
 
@@ -481,11 +507,15 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
+		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
 		@cube.style["webkitTransform"] = rotation
 		@currentDesktopDir = -heading
-		@currentDesktopHeight = elevation
+		@_heading = heading
+		@_elevation = elevation
+		@_headingOffset = @_heading - @_deviceHeading
+
+		@_elevationOffset = @_elevation - @_deviceElevation
 		@_emitOrientationDidChangeEvent()
 
 	_emitOrientationDidChangeEvent: ->
-		@emit(Events.OrientationDidChange, {heading: @_heading, elevation: @_elevation, tilt: @_tilt})
+		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @_elevation, tilt: @_tilt})
