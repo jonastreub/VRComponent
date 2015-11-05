@@ -20,7 +20,7 @@ methods
 - projectLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
 - hideEnviroment()
 
-- lookAtLayer: (layer <Layer>, animated = true <bool>)
+- lookAtLayer(layer <Layer>, animated = true <bool>)
 - lookAtHeading(heading <number>, animated = true <bool>)
 
 events
@@ -153,24 +153,24 @@ class exports.VRComponent extends Layer
 						@removeDesktopPanLayer()
 
 	@define "heading",
-		get: -> return @_heading
-			# heading = @_heading + @_headingOffset
-			# if heading > 360
-			# 	heading = heading % 360
-			# else if heading < 0
-			# 	rest = Math.abs(heading) % 360
-
-			# return heading
+		get: ->
+			heading = @_heading + @_headingOffset
+			if heading > 360
+				heading = heading % 360
+			else if heading < 0
+				rest = Math.abs(heading) % 360
+				heading = 360 - rest
+			return heading
 		set: (value) ->
-			@lookAt(value, @elevation)
+			@lookAt(value, @_elevation)
 
 	@define "elevation",
 		get: -> @_elevation
-		set: (value) -> console.log("Elevation is readonly")
+		set: (value) -> @lookAt(@_heading, value)
 
 	@define "tilt",
 		get: -> @_tilt
-		set: (value) -> console.log("Tilt is readonly")
+		set: (value) -> throw "Tilt is readonly"
 
 	SIDES.map (face) =>
 		@define face,
@@ -201,9 +201,9 @@ class exports.VRComponent extends Layer
 		@side3 = new Layer
 		@side3.style["webkitTransform"] = "rotateY(90deg) translateZ(-#{halfCubSide}px) rotateZ(-90deg)"
 		@side4 = new Layer
-		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubSide}px)"
+		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubSide}px) rotateZ(180deg)"
 		@side5 = new Layer
-		@side5.style["webkitTransform"] = "translateZ(-#{halfCubSide}px)  rotateZ(180deg)"
+		@side5.style["webkitTransform"] = "translateZ(-#{halfCubSide}px)"
 
 		@sides = [@side0, @side1, @side2, @side3, @side4, @side5]
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
@@ -304,7 +304,12 @@ class exports.VRComponent extends Layer
 		@lookAtHeading(layer.heading, animated)
 
 	lookAtHeading: (heading, animated = true) ->
-		@lookAt(heading, @_elevation)
+		if animated
+			options = _.clone(@animationOptions)
+			options.properties = heading: heading
+			@animate options
+		else
+			@lookAt(heading, @_elevation)
 
 	# Mobile device orientation
 
@@ -379,7 +384,7 @@ class exports.VRComponent extends Layer
 			orientation = "rotate(#{window.orientation * -1}deg) "
 			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
+			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
 			@cube.style["webkitTransform"] = rotation
 
 	directionParams: (alpha, beta, gamma) ->
@@ -496,7 +501,7 @@ class exports.VRComponent extends Layer
 		@_elevation += deltaHeight
 		@_elevation = Utils.clamp(@_elevation, -90, 90)
 
-		rotation = translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
+		rotation = translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
 		@cube.style["webkitTransform"] = rotation
 
 		@_heading = Math.round(@_heading * 1000) / 1000
@@ -507,15 +512,16 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)" # + " rotateZ(-#{@_headingOffset}deg)"
+		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 		@cube.style["webkitTransform"] = rotation
 		@currentDesktopDir = -heading
 		@_heading = heading
 		@_elevation = elevation
-		@_headingOffset = @_heading - @_deviceHeading
+		if Utils.isMobile()
+			@_headingOffset = @_heading - @_deviceHeading
 
 		@_elevationOffset = @_elevation - @_deviceElevation
-		@_emitOrientationDidChangeEvent()
+		@emit(Events.OrientationDidChange, {heading: @_heading, elevation: @_elevation, tilt: @_tilt})
 
 	_emitOrientationDidChangeEvent: ->
 		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @_elevation, tilt: @_tilt})
