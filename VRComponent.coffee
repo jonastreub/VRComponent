@@ -78,7 +78,6 @@ class exports.VRComponent extends Layer
 		@arrowKeys = options.arrowKeys
 		@_keys()
 
-		@currentDesktopDir = 0
 		@_heading = 0
 		@_elevation = 0
 		@_tilt = 0
@@ -514,14 +513,20 @@ class exports.VRComponent extends Layer
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 		@cube.style["webkitTransform"] = rotation
-		@currentDesktopDir = -heading
 		@_heading = heading
 		@_elevation = elevation
 		if Utils.isMobile()
 			@_headingOffset = @_heading - @_deviceHeading
 
 		@_elevationOffset = @_elevation - @_deviceElevation
-		@emit(Events.OrientationDidChange, {heading: @_heading, elevation: @_elevation, tilt: @_tilt})
+
+		heading = @_heading
+		if heading < 0
+			heading += 360
+		else if heading > 360
+			heading -= 360
+
+		@emit(Events.OrientationDidChange, {heading: heading, elevation: @_elevation, tilt: @_tilt})
 
 	_emitOrientationDidChangeEvent: ->
 		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @_elevation, tilt: @_tilt})
