@@ -1,5 +1,6 @@
 """
-VRComponent
+
+VRComponent class
 
 properties
 - front (set: imagePath <string>, get: layer)
@@ -10,21 +11,26 @@ properties
 - bottom
 - heading <number>
 - elevation <number>
-- tilt <number>
+- tilt <number> readonly
 
 - orientationLayer <bool>
 - arrowKeys <bool>
 - lookAtLatestProjectedLayer <bool>
 
 methods
-- projectLayer(layer, heading, elevation) # heading and elevation can also be set as properties on the layer
+- projectLayer(layer) # heading and elevation are set as properties on the layer
 - hideEnviroment()
-
-- lookAtLayer(layer <Layer>, animated = true <bool>)
-- lookAtHeading(heading <number>, animated = true <bool>)
 
 events
 - Events.OrientationDidChange, (data {heading, elevation, tilt})
+
+--------------------------------------------------------------------------------
+
+VRLayer class
+
+properties
+- heading <number> (from 0 up to 360)
+- elevation <number> (from -90 down to 90 up)
 
 """
 
@@ -56,6 +62,62 @@ KEYSDOWN = {
 }
 
 Events.OrientationDidChange = "orientationdidchange"
+
+class VRAnchorLayer extends Layer
+
+	constructor: (layer, cubeSide) ->
+		super undefined
+		@width = 0
+		@height = 0
+		@clip = false
+		@name = "anchor"
+		@cubeSide = cubeSide
+
+		@layer = layer
+		layer.superLayer = @
+		layer.center()
+
+		layer.on "change:orientation", (newValue, layer) =>
+			@updatePosition(layer)
+		@updatePosition(layer)
+
+		layer._context.on "layer:destroy", (layer) =>
+			if layer == @layer
+				@destroy()
+
+	updatePosition: (layer) ->
+		halfCubSide = @cubeSide/2
+		@style["webkitTransform"] = "translateX(#{(@cubeSide - @width)/2}px) translateY(#{(@cubeSide - @height)/2}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
+
+class exports.VRLayer extends Layer
+
+	constructor: (options = {}) ->
+		options = _.defaults options,
+			heading: 0
+			elevation: 0
+		super options
+
+	@define "heading",
+		get: -> @_heading
+		set: (value) ->
+			if value >= 360
+				value = value % 360
+			else if value < 0
+				rest = Math.abs(value) % 360
+				value = 360 - rest
+			if @_heading != value
+				@_heading = value
+				@emit("change:heading", value)
+				@emit("change:orientation", value)
+
+	@define "elevation",
+		get: -> @_elevation
+		set: (value) ->
+			value = Utils.clamp(value, -90, 90)
+			if value != @_elevation
+				@_elevation = value
+				@emit("change:elevation", value)
+				@emit("change:orientation", value)
 
 class exports.VRComponent extends Layer
 
@@ -144,7 +206,7 @@ class exports.VRComponent extends Layer
 	@define "orientationLayer",
 		get: -> return @desktopOrientationLayer != null && @desktopOrientationLayer != undefined
 		set: (value) ->
-			if @cube != undefined
+			if @world != undefined
 				if Utils.isDesktop()
 					if value == true
 						@addDesktopPanLayer()
@@ -179,15 +241,15 @@ class exports.VRComponent extends Layer
 	createCube: (cubeSide = @cubeSide) =>
 		@cubeSide = cubeSide
 
-		@cube?.destroy()
-		@cube = new Layer
-			name: "cube"
+		@world?.destroy()
+		@world = new Layer
+			name: "world"
 			superLayer: @
 			width: cubeSide, height: cubeSide
 			backgroundColor: null
 			clip: false
-		@cube.style.webkitTransformStyle = "preserve-3d"
-		@cube.center()
+		@world.style.webkitTransformStyle = "preserve-3d"
+		@world.center()
 
 		halfCubSide = @cubeSide/2
 
@@ -212,7 +274,7 @@ class exports.VRComponent extends Layer
 		for side in @sides
 			side.name = sideNames[index]
 			side.width = side.height = cubeSide
-			side.superLayer = @cube
+			side.superLayer = @world
 			side.html = sideNames[index]
 			side.color = "white"
 			side._backgroundColor = colors[index]
@@ -274,41 +336,31 @@ class exports.VRComponent extends Layer
 		if layer
 			layer.image
 
-	projectLayer: (insertLayer, heading, elevation) ->
-		anchor = new Layer
-			width: 0, height:0
-			clip: false
-			name: "augmentAnchor"
-		anchor.superLayer = @cube
-		insertLayer.superLayer = anchor
-		insertLayer.center()
+	projectLayer: (insertLayer) ->
 
+		heading = insertLayer.heading
 		if heading == undefined
-			heading = insertLayer.heading
-			if heading == undefined
-				heading = 0
+			heading = 0
+		elevation = insertLayer.elevation
 		if elevation == undefined
-			elevation = insertLayer.elevation
-			if elevation == undefined
-				elevation = 0
+			elevation = 0
+
+		if heading >= 360
+			heading = value % 360
+		else if heading < 0
+			rest = Math.abs(heading) % 360
+			heading = 360 - rest
+
 		elevation = Utils.clamp(elevation, -90, 90)
+
 		insertLayer.heading = heading
 		insertLayer.elevation = elevation
-		halfCubSide = @cubeSide/2
-		anchor.style["webkitTransform"] = "translateX(#{(@cubeSide - anchor.width)/2}px) translateY(#{(@cubeSide - anchor.height)/2}px) rotateZ(#{heading}deg) rotateX(#{90-elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
+
+		anchor = new VRAnchorLayer(insertLayer, @cubeSide)
+		anchor.superLayer = @world
+
 		if @lookAtLatestProjectedLayer
 			@lookAt(heading, elevation)
-
-	lookAtLayer: (layer, animated = true) ->
-		@lookAtHeading(layer.heading, animated)
-
-	lookAtHeading: (heading, animated = true) ->
-		if animated
-			options = _.clone(@animationOptions)
-			options.properties = heading: heading
-			@animate options
-		else
-			@lookAt(heading, @_elevation)
 
 	# Mobile device orientation
 
@@ -384,7 +436,7 @@ class exports.VRComponent extends Layer
 			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
-			@cube.style["webkitTransform"] = rotation
+			@world.style["webkitTransform"] = rotation
 
 	directionParams: (alpha, beta, gamma) ->
 
@@ -501,7 +553,7 @@ class exports.VRComponent extends Layer
 		@_elevation = Utils.clamp(@_elevation, -90, 90)
 
 		rotation = translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
-		@cube.style["webkitTransform"] = rotation
+		@world.style["webkitTransform"] = rotation
 
 		@_heading = Math.round(@_heading * 1000) / 1000
 		@_tilt = 0
@@ -512,7 +564,7 @@ class exports.VRComponent extends Layer
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
 		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
-		@cube.style["webkitTransform"] = rotation
+		@world.style["webkitTransform"] = rotation
 		@_heading = heading
 		@_elevation = elevation
 		if Utils.isMobile()

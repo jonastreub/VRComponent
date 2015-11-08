@@ -40,18 +40,30 @@ vr = new VRComponent
 ```
 
 ## Functions
-- **`projectLayer`(**layer, heading, elevation**)**
+- **`projectLayer`(**layer**)**
 - **`hideEnviroment`()**
 
 ```coffee
-# either project a layer by giving the heading and elevation as function parameters
-layer = new Layer
-vr.projectLayer(layer, 230, 10)
-
-# or set these values on the layer before projecting
+# set the heading and elevation values on the layer before projecting
 layer.heading = 230
 layer.elevation = 10
 vr.projectLayer(layer)
+```
+
+# Animating projected layers
+
+If you want to animate a layer its heading and/or elevation use a VRLayer.
+
+```
+{VRComponent, VRLayer} = require "VRComponent"
+
+layer = new VRLayer
+vr.projectLayer(layer)
+
+layer.animate
+	properties:
+		heading: 30
+	time: 10
 ```
 
 ## Events
@@ -63,6 +75,10 @@ vr.on Events.OrientationDidChange, (data) ->
 	elevation = data.elevation
 	tilt = data.tilt
 ```
+
+## VRLayer
+
+
 
 ## Future plans
 - Integrate support for Google Street View panoramas
