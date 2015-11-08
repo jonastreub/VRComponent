@@ -54,7 +54,7 @@ vr.projectLayer(layer)
 
 If you use a VRLayer you can animate the heading and elevation value.
 
-```
+```coffee
 {VRComponent, VRLayer} = require "VRComponent"
 
 layer = new VRLayer
