@@ -76,10 +76,6 @@ vr.on Events.OrientationDidChange, (data) ->
 	tilt = data.tilt
 ```
 
-## VRLayer
-
-
-
 ## Future plans
 - Integrate support for Google Street View panoramas
 - Add support for spheremap projection (WebGL)
