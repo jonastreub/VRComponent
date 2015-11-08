@@ -50,9 +50,9 @@ layer.elevation = 10
 vr.projectLayer(layer)
 ```
 
-# Animating projected layers
+## Animating projected layers
 
-If you want to animate a layer its heading and/or elevation use a VRLayer.
+If you use a VRLayer you can animate the heading and elevation value.
 
 ```
 {VRComponent, VRLayer} = require "VRComponent"
