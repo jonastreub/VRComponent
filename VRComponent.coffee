@@ -563,7 +563,8 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-		rotation = translationX + translationY + " rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
+		rotation = translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
+
 		@world.style["webkitTransform"] = rotation
 		@_heading = heading
 		@_elevation = elevation
