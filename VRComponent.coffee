@@ -435,7 +435,8 @@ class exports.VRComponent extends Layer
 			orientation = "rotate(#{window.orientation * -1}deg) "
 			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-			rotation = translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
+			translationZ = " translateZ(#{@perspective}px)"
+			rotation = translationZ + translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
 			@world.style["webkitTransform"] = rotation
 
 	directionParams: (alpha, beta, gamma) ->
@@ -528,8 +529,9 @@ class exports.VRComponent extends Layer
 			
 		@desktopOrientationLayer.on Events.Move, =>
 			if @desktopDraggableActive
-				deltaDir = (@desktopOrientationLayer.x - @prevDesktopDir) / 9
-				deltaHeight = (@desktopOrientationLayer.y - @prevDesktopHeight) / 8
+				strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
+				deltaDir = (@desktopOrientationLayer.x - @prevDesktopDir) / strength
+				deltaHeight = (@desktopOrientationLayer.y - @prevDesktopHeight) / strength
 				@desktopPan(deltaDir, deltaHeight)
 				@prevDesktopDir = @desktopOrientationLayer.x
 				@prevDesktopHeight = @desktopOrientationLayer.y
@@ -542,6 +544,7 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
+		translationZ = " translateZ(#{@perspective}px)"
 		@_heading -= deltaDir
 
 		if @_heading > 360
@@ -552,7 +555,7 @@ class exports.VRComponent extends Layer
 		@_elevation += deltaHeight
 		@_elevation = Utils.clamp(@_elevation, -90, 90)
 
-		rotation = translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
+		rotation = translationZ + translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
 		@world.style["webkitTransform"] = rotation
 
 		@_heading = Math.round(@_heading * 1000) / 1000
@@ -563,7 +566,8 @@ class exports.VRComponent extends Layer
 		halfCubSide = @cubeSide/2
 		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
 		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
-		rotation = translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
+		translationZ = " translateZ(#{@perspective}px)"
+		rotation = translationZ + translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 
 		@world.style["webkitTransform"] = rotation
 		@_heading = heading
