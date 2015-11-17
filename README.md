@@ -114,7 +114,6 @@ iPhone 6 Plus | Great
 iPhone 5C | Poor
 Nexus 5 | Poor
 
-## Future
-- Support for Google Street View panoramas
-- Add support for spheremap projection (WebGL)
-- Support stereoscopic VR
+## Future plans
+- Google Street View panoramas
+- Stereoscopic VR
