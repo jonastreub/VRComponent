@@ -7,7 +7,7 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 Read more on the associated [blogpost]().
 
 ## Examples
-- [Base setup](http://share.framerjs.com/e0532rrbf4oy/)
+- [Base setup](http://share.framerjs.com/j6nd3pyi3zmm/)
 - [Event data](http://share.framerjs.com/7gmdj4qr5lgz/)
 - [VR shape puzzle](http://share.framerjs.com/k6eepvtyzhzg/)
 
