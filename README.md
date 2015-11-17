@@ -50,7 +50,7 @@ To map your environment, you can look for cubemap images on the web. Each side i
 - **back** - positive-z
 
 ## Projecting Layers
-Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or heading, elevation or tilt outputs. However, if you'd like to position layers with 3D space, you can use the **`projectLayer()`** method.
+Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers with 3D space, you can use the **`projectLayer()`** method.
 
 ```coffee
 # Create layer
