@@ -163,11 +163,15 @@ class exports.VRComponent extends Layer
 			window.addEventListener "deviceorientation", (event) =>
 				@orientationData = event
 
-		Framer.Loop.on "update", =>
-			@deviceOrientationUpdate()
+		Framer.Loop.on("update", @deviceOrientationUpdate)
+
+		# Make sure we remove the update from the loop when we destroy the context
+		Framer.CurrentContext.on "reset", ->
+			Framer.Loop.off("update", @deviceOrientationUpdate)
 
 		@on "change:frame", ->
 			@desktopPan(0,0)
+
 
 	_keys: ->
 		document.addEventListener "keydown", (event) =>
