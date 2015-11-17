@@ -52,7 +52,7 @@ vr.projectLayer(layer)
 
 ## Animating projected layers
 
-If you use a VRLayer you can update and animate heading and elevation value.
+If you use a VRLayer you can update and animate heading and elevation values.
 
 ```coffee
 {VRComponent, VRLayer} = require "VRComponent"
@@ -77,5 +77,6 @@ vr.on Events.OrientationDidChange, (data) ->
 ```
 
 ## Future plans
-- Integrate support for Google Street View panoramas
+- Support for Google Street View panoramas
 - Add support for spheremap projection (WebGL)
+- Support stereoscopic 
