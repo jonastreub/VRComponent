@@ -6,10 +6,12 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 
 Read more on the associated [blogpost]().
 
+
+
 ## Examples
-- [Base setup](http://share.framerjs.com/j6nd3pyi3zmm/)
-- [Event data](http://share.framerjs.com/7gmdj4qr5lgz/)
-- [VR shape puzzle](http://share.framerjs.com/k6eepvtyzhzg/)
+- [Base setup](http://share.framerjs.com/09nysgcp4ilc/)
+- [Event data](http://share.framerjs.com/57p5w0uw9k8a/)
+- [VR shape puzzle](http://share.framerjs.com/3f49d9u0295p/)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
 
