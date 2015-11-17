@@ -149,6 +149,11 @@ class exports.VRComponent extends Layer
 		@_deviceHeading = 0
 		@_deviceElevation = 0
 
+		if options.heading
+			@heading = options.heading
+		if options.elevation
+			@elevation = options.elevation
+
 		@orientationLayer = options.orientationLayer
 
 		@desktopPan(0, 0)
@@ -569,7 +574,7 @@ class exports.VRComponent extends Layer
 		translationZ = " translateZ(#{@perspective}px)"
 		rotation = translationZ + translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 
-		@world.style["webkitTransform"] = rotation
+		@world?.style["webkitTransform"] = rotation
 		@_heading = heading
 		@_elevation = elevation
 		if Utils.isMobile()
