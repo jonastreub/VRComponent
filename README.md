@@ -103,7 +103,18 @@ vr.on Events.OrientationDidChange, (data) ->
 	tilt = data.tilt
 ```
 
-## Future plans
+## Devices
+
+The module has been tested on the following devices.
+
+Device | Performance
+------ | -----------
+iPhone 6 | Good
+iPhone 6 Plus | Great
+iPhone 5C | Poor
+Nexus 5 | Poor
+
+## Future
 - Support for Google Street View panoramas
 - Add support for spheremap projection (WebGL)
-- Support stereoscopic 
+- Support stereoscopic VR
