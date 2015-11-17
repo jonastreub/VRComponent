@@ -39,6 +39,19 @@ vr = new VRComponent
 	bottom: "images/bottom.png"
 ```
 
+## Mapping images
+To map your environment, you can look for cubemap images on the web. Each side is often named by the positive or negative X, Y, or Z axis.
+
+
+- **left** - negative-x
+- **bottom** - negative-y
+- **front** - negative-z
+- **right** - positive-x
+- **top** - positive-y
+- **back** - positive-z
+
+
+
 ## Functions
 - **`projectLayer`(**layer**)**
 - **`hideEnviroment`()**
