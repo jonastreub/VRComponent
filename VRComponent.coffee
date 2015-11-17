@@ -282,7 +282,7 @@ class exports.VRComponent extends Layer
 			side.style =
 				lineHeight: "#{cubeSide}px"
 				textAlign: "center"
-				fontSize: "#{cubeSide / 4}px"
+				fontSize: "#{cubeSide / 10}px"
 				fontWeight: "100"
 				fontFamily: "Helvetica Neue"
 			index++
