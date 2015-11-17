@@ -72,9 +72,9 @@ layerA.elevation = 10
 vr.projectLayer(layerA)
 ```
 
-## Animating projected layers
+## Animating VRLayers
 
-If you use a VRLayer you can update and animate heading and elevation values.
+The `heading` and `elevation` values of a `VRLayer` can be animated.
 
 ```coffee
 # Include VRComponent and VRLayer
