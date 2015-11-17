@@ -87,7 +87,7 @@ class VRAnchorLayer extends Layer
 
 	updatePosition: (layer) ->
 		halfCubSide = @cubeSide/2
-		@style["webkitTransform"] = "translateX(#{(@cubeSide - @width)/2}px) translateY(#{(@cubeSide - @height)/2}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{halfCubSide*.9}px) rotateX(180deg)"
+		@style["webkitTransform"] = "translateX(#{(@cubeSide - @width)/2}px) translateY(#{(@cubeSide - @height)/2}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{layer.distance}px) rotateX(180deg)"
 
 class exports.VRLayer extends Layer
 
@@ -117,6 +117,14 @@ class exports.VRLayer extends Layer
 			if value != @_elevation
 				@_elevation = value
 				@emit("change:elevation", value)
+				@emit("change:orientation", value)
+
+	@define "distance",
+		get: -> @_distance
+		set: (value) ->
+			if value != @_distance
+				@_distance = value
+				@emit("change:distance", value)
 				@emit("change:orientation", value)
 
 class exports.VRComponent extends Layer
@@ -362,8 +370,13 @@ class exports.VRComponent extends Layer
 
 		elevation = Utils.clamp(elevation, -90, 90)
 
+		distance = insertLayer.distance
+		if distance == undefined
+			distance = 1200
+
 		insertLayer.heading = heading
 		insertLayer.elevation = elevation
+		insertLayer.distance = distance
 
 		anchor = new VRAnchorLayer(insertLayer, @cubeSide)
 		anchor.superLayer = @world
