@@ -28,8 +28,10 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`arrowKeys`** *\<bool>*
 
 ```coffee
+# Include the VRComponent
 {VRComponent} = require "VRComponent"
 
+# Create a new VRComponent, map images
 vr = new VRComponent
 	front: "images/front.png"
 	left: "images/left.png"
@@ -52,9 +54,15 @@ To map your environment, you can look for cubemap images on the web. Each side i
 ## Projecting Layers
 Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers with 3D space, you can use the **`projectLayer()`** method.
 
+##### VRLayers
+Any layer can be projected within your virtual environment, but if you'd like to adjust or animate their `heading` or `elevation` values later, you'll need to use a **`VRLayer`** instead.
+
 ```coffee
+# Include VRComponent and VRLayer
+{VRComponent, VRLayer} = require "VRComponent"
+
 # Create layer
-layerA = new Layer 
+layerA = new VRLayer 
 
 # Set layer heading and elevation before projecting
 layerA.heading = 230
@@ -69,12 +77,17 @@ vr.projectLayer(layerA)
 If you use a VRLayer you can update and animate heading and elevation values.
 
 ```coffee
+# Include VRComponent and VRLayer
 {VRComponent, VRLayer} = require "VRComponent"
 
-layer = new VRLayer
-vr.projectLayer(layer)
+# Create VRLayer
+layerA = new VRLayer
 
-layer.animate
+# Project the VRLayer
+vr.projectLayer(layerA)
+
+# Animate the layer
+layerA.animate
 	properties:
 		heading: 30
 	time: 10
