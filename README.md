@@ -7,9 +7,9 @@ You can listen for orientation updates using the `OrientationDidChange` event. T
 Read more on the associated [blogpost]().
 
 ## Examples
-- [Base setup](http://share.framerjs.com/dqsd8kr5exij/)
-- [Event data](http://share.framerjs.com/lhe5hjvrn23a/)
-- [VR shape puzzle](http://share.framerjs.com/qwtvejgd8y4d/)
+- [Base setup](http://share.framerjs.com/e0532rrbf4oy/)
+- [Event data](http://share.framerjs.com/7gmdj4qr5lgz/)
+- [VR shape puzzle](http://share.framerjs.com/k6eepvtyzhzg/)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
 
@@ -52,7 +52,7 @@ vr.projectLayer(layer)
 
 ## Animating projected layers
 
-If you use a VRLayer you can animate the heading and elevation value.
+If you use a VRLayer you can update and animate heading and elevation value.
 
 ```coffee
 {VRComponent, VRLayer} = require "VRComponent"
