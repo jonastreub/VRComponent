@@ -24,7 +24,7 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`bottom`** (set: imagePath *\<string>*, get: layer)
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
-- **`tilt`** *\<number>* (-180 to 180 degrees)
+- **`tilt`** *\<number, readonly>* (-180 to 180 degrees)
 - **`lookAtLatestProjectedLayer`** *\<bool>*
 - **`orientationLayer`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
@@ -35,11 +35,11 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 
 # Create a new VRComponent, map images
 vr = new VRComponent
-	front: "images/front.png"
-	left: "images/left.png"
-	right: "images/right.png"
-	back: "images/back.png"
-	top: "images/top.png"
+	front:  "images/front.png"
+	left:   "images/left.png"
+	right:  "images/right.png"
+	back:   "images/back.png"
+	top:    "images/top.png"
 	bottom: "images/bottom.png"
 ```
 
@@ -73,6 +73,8 @@ layerA.elevation = 10
 # Project the layer
 vr.projectLayer(layerA)
 ```
+
+`distance` is a third positioning value which defaults to `1200`, equal to the default perspective. When distance and perspective are equal layers are rendered at the size they had before projecting.
 
 ## Animating VRLayers
 
