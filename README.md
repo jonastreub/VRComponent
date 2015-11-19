@@ -44,12 +44,12 @@ vr = new VRComponent
 ## Mapping images
 To map your environment, you can look for cubemap images on the web. Each side is often named by the positive or negative X, Y, or Z axis.
 
-- **left** - negative-x
-- **bottom** - negative-y
-- **front** - negative-z
 - **right** - positive-x
 - **top** - positive-y
-- **back** - positive-z
+- **front** - positive-z
+- **left** - negative-x
+- **bottom** - negative-y
+- **back** - negative-z
 
 ## Projecting Layers
 Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers with 3D space, you can use the **`projectLayer()`** method.
