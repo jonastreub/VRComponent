@@ -4,14 +4,12 @@ A virtual reality component for [Framer](http://framerjs.com). The virtual envir
 
 You can listen for orientation updates using the `OrientationDidChange` event. This event contains information about heading, elevation and tilt.
 
-Read more on the associated [blogpost]().
-
-
+Read more on the associated [blogpost](http://blog.framerjs.com/posts/design-virtual-reality.html).
 
 ## Examples
-- [Base setup](http://share.framerjs.com/09nysgcp4ilc/)
-- [Event data](http://share.framerjs.com/57p5w0uw9k8a/)
-- [VR shape puzzle](http://share.framerjs.com/3f49d9u0295p/)
+- [Base setup](http://share.framerjs.com/04xirgfmtlw6/)
+- [Event data](http://share.framerjs.com/lhqbyvlz5t9h/)
+- [Space puzzle](http://share.framerjs.com/4v5wono2two5/)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
 
@@ -31,7 +29,7 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 
 ```coffee
 # Include the VRComponent
-{VRComponent} = require "VRComponent"
+{VRComponent, VRLayer} = require "VRComponent"
 
 # Create a new VRComponent, map images
 vr = new VRComponent
