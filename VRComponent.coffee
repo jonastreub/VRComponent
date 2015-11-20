@@ -35,16 +35,16 @@ properties
 """
 
 SIDES = [
-	"north", 
-	"front", 
+	"north",
+	"front",
 	"east",
-	"right", 
-	"south", 
-	"back", 
-	"west", 
-	"left", 
-	"top", 
-	"bottom", 
+	"right",
+	"south",
+	"back",
+	"west",
+	"left",
+	"top",
+	"bottom",
 ]
 
 KEYS = {
@@ -86,7 +86,7 @@ class VRAnchorLayer extends Layer
 				@destroy()
 
 	updatePosition: (layer) ->
-		halfCubSide = @cubeSide/2
+		halfCubeSide = @cubeSide/2
 		@style["webkitTransform"] = "translateX(#{(@cubeSide - @width)/2}px) translateY(#{(@cubeSide - @height)/2}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{layer.distance}px) rotateX(180deg)"
 
 class exports.VRLayer extends Layer
@@ -268,20 +268,20 @@ class exports.VRComponent extends Layer
 		@world.style.webkitTransformStyle = "preserve-3d"
 		@world.center()
 
-		halfCubSide = @cubeSide/2
+		halfCubeSide = @cubeSide/2
 
 		@side0 = new Layer
-		@side0.style["webkitTransform"] = "rotateX(-90deg) translateZ(-#{halfCubSide}px)"
+		@side0.style["webkitTransform"] = "rotateX(-90deg) translateZ(-#{halfCubeSide}px)"
 		@side1 = new Layer
-		@side1.style["webkitTransform"] = "rotateY(-90deg) translateZ(-#{halfCubSide}px) rotateZ(90deg)"
+		@side1.style["webkitTransform"] = "rotateY(-90deg) translateZ(-#{halfCubeSide}px) rotateZ(90deg)"
 		@side2 = new Layer
-		@side2.style["webkitTransform"] = "rotateX(90deg) translateZ(-#{halfCubSide}px) rotateZ(180deg)"
+		@side2.style["webkitTransform"] = "rotateX(90deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
 		@side3 = new Layer
-		@side3.style["webkitTransform"] = "rotateY(90deg) translateZ(-#{halfCubSide}px) rotateZ(-90deg)"
+		@side3.style["webkitTransform"] = "rotateY(90deg) translateZ(-#{halfCubeSide}px) rotateZ(-90deg)"
 		@side4 = new Layer
-		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubSide}px) rotateZ(180deg)"
+		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
 		@side5 = new Layer
-		@side5.style["webkitTransform"] = "translateZ(-#{halfCubSide}px)"
+		@side5.style["webkitTransform"] = "translateZ(-#{halfCubeSide}px)"
 
 		@sides = [@side0, @side1, @side2, @side3, @side4, @side5]
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
@@ -327,7 +327,7 @@ class exports.VRComponent extends Layer
 		return map[face]
 
 	setImage: (face, imagePath) ->
-		
+
 		if not face in SIDES
 			throw Error "VRComponent setImage, wrong name for face: " + face + ", valid options: front, right, back, left, top, bottom, north, east, south, west"
 
@@ -336,7 +336,7 @@ class exports.VRComponent extends Layer
 		@sideImages[face] = imagePath
 
 		layer = @layerFromFace(face)
-		
+
 		if imagePath
 			layer?.html = ""
 			layer?.image = imagePath
@@ -414,7 +414,7 @@ class exports.VRComponent extends Layer
 						if @_goingUp == true
 							@_accelerationVertical = 1
 							@_goingUp = false
-						
+
 						@desktopPan(0, -1 * @_accelerationVertical * x)
 					@_lastCallVertical = date
 
@@ -453,10 +453,10 @@ class exports.VRComponent extends Layer
 			yAngle = -gamma
 			zAngle = alpha
 
-			halfCubSide = @cubeSide/2
+			halfCubeSide = @cubeSide/2
 			orientation = "rotate(#{window.orientation * -1}deg) "
-			translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
-			translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
+			translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
+			translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
 			translationZ = " translateZ(#{@perspective}px)"
 			rotation = translationZ + translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
 			@world.style["webkitTransform"] = rotation
@@ -540,15 +540,15 @@ class exports.VRComponent extends Layer
 			name: "desktopOrientationLayer"
 		@desktopOrientationLayer.center()
 		@desktopOrientationLayer.draggable.enabled = true
-		
+
 		@prevDesktopDir = @desktopOrientationLayer.x
 		@prevDesktopHeight = @desktopOrientationLayer.y
-		
+
 		@desktopOrientationLayer.on Events.DragStart, =>
 			@prevDesktopDir = @desktopOrientationLayer.x
 			@prevDesktopHeight = @desktopOrientationLayer.y
 			@desktopDraggableActive = true
-			
+
 		@desktopOrientationLayer.on Events.Move, =>
 			if @desktopDraggableActive
 				strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
@@ -557,15 +557,15 @@ class exports.VRComponent extends Layer
 				@desktopPan(deltaDir, deltaHeight)
 				@prevDesktopDir = @desktopOrientationLayer.x
 				@prevDesktopHeight = @desktopOrientationLayer.y
-		
+
 		@desktopOrientationLayer.on Events.AnimationEnd, =>
 			@desktopDraggableActive = false
 			@desktopOrientationLayer?.center()
 
 	desktopPan: (deltaDir, deltaHeight) ->
-		halfCubSide = @cubeSide/2
-		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
-		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
+		halfCubeSide = @cubeSide/2
+		translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
+		translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
 		translationZ = " translateZ(#{@perspective}px)"
 		@_heading -= deltaDir
 
@@ -585,9 +585,9 @@ class exports.VRComponent extends Layer
 		@_emitOrientationDidChangeEvent()
 
 	lookAt: (heading, elevation) ->
-		halfCubSide = @cubeSide/2
-		translationX = "translateX(#{(@width / 2) - halfCubSide}px)"
-		translationY = " translateY(#{(@height / 2) - halfCubSide}px)"
+		halfCubeSide = @cubeSide/2
+		translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
+		translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
 		translationZ = " translateZ(#{@perspective}px)"
 		rotation = translationZ + translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 
