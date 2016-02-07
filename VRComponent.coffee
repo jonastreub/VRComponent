@@ -138,6 +138,7 @@ class exports.VRComponent extends Layer
 			height: Screen.height
 			arrowKeys: true
 			pan: true
+			flat: true
 		super options
 
 		@setupDefaultValues()
@@ -253,7 +254,6 @@ class exports.VRComponent extends Layer
 			width: cubeSide, height: cubeSide
 			backgroundColor: null
 			clip: false
-		@world.style.webkitTransformStyle = "preserve-3d"
 		@world.center()
 
 		halfCubeSide = @cubeSide/2
