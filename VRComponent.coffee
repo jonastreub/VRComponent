@@ -13,7 +13,7 @@ properties
 - elevation <number>
 - tilt <number> readonly
 
-- orientationLayer <bool>
+- pan <bool>
 - arrowKeys <bool>
 - lookAtLatestProjectedLayer <bool>
 
@@ -136,10 +136,11 @@ class exports.VRComponent extends Layer
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
-			orientationLayer: true
 			arrowKeys: true
+			pan: true
 		super options
 		@perspective = options.perspective
+		@pan = options.pan
 		@backgroundColor = null
 		@createCube(options.cubeSide)
 		@degToRad = Math.PI / 180
@@ -162,8 +163,6 @@ class exports.VRComponent extends Layer
 		if options.elevation
 			@elevation = options.elevation
 
-		@orientationLayer = options.orientationLayer
-
 		@desktopPan(0, 0)
 
 		# tilting and panning
@@ -176,6 +175,8 @@ class exports.VRComponent extends Layer
 		# Make sure we remove the update from the loop when we destroy the context
 		Framer.CurrentContext.on "reset", ->
 			Framer.Loop.off("update", @deviceOrientationUpdate)
+
+		@setupPan()
 
 		@on "change:frame", ->
 			@desktopPan(0,0)
@@ -219,16 +220,6 @@ class exports.VRComponent extends Layer
 			KEYSDOWN.down = false
 			KEYSDOWN.left = false
 			KEYSDOWN.right = false
-
-	@define "orientationLayer",
-		get: -> return @desktopOrientationLayer != null && @desktopOrientationLayer != undefined
-		set: (value) ->
-			if @world != undefined
-				if Utils.isDesktop()
-					if value == true
-						@addDesktopPanLayer()
-					else if value == false
-						@removeDesktopPanLayer()
 
 	@define "heading",
 		get: ->
@@ -524,41 +515,45 @@ class exports.VRComponent extends Layer
 
 		@_emitOrientationDidChangeEvent()
 
-	# Desktop tilt
+	# Panning
 
-	removeDesktopPanLayer: =>
-		@desktopOrientationLayer?.destroy()
+	_canvasToComponentRatio: =>
+		pointA = Utils.convertPointFromContext({x:0, y:0}, @, true)
+		pointB = Utils.convertPointFromContext({x:1, y:1}, @, true)
+		xDist = Math.abs(pointA.x - pointB.x)
+		yDist = Math.abs(pointA.y - pointB.y)
+		return {x:xDist, y:yDist}
 
-	addDesktopPanLayer: =>
-		@desktopOrientationLayer?.destroy()
-		@desktopOrientationLayer = new Layer
-			width: 100000, height: 10000
-			backgroundColor: null
-			superLayer:@
-			name: "desktopOrientationLayer"
-		@desktopOrientationLayer.center()
-		@desktopOrientationLayer.draggable.enabled = true
+	setupPan: =>
 
-		@prevDesktopDir = @desktopOrientationLayer.x
-		@prevDesktopHeight = @desktopOrientationLayer.y
+		@onMouseDown -> @animateStop()
 
-		@desktopOrientationLayer.on Events.DragStart, =>
-			@prevDesktopDir = @desktopOrientationLayer.x
-			@prevDesktopHeight = @desktopOrientationLayer.y
-			@desktopDraggableActive = true
+		@onPan (data) ->
+			return if not @pan or Utils.isMobile()
+			ratio = @_canvasToComponentRatio()
+			deltaX = data.deltaX * ratio.x
+			deltaY = data.deltaY * ratio.y
+			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
+			@desktopPan(deltaX / strength, deltaY / strength)
+			@_prevVeloX = data.velocityX
+			@_prevVeloU = data.velocityY
 
-		@desktopOrientationLayer.on Events.Move, =>
-			if @desktopDraggableActive
-				strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
-				deltaDir = (@desktopOrientationLayer.x - @prevDesktopDir) / strength
-				deltaHeight = (@desktopOrientationLayer.y - @prevDesktopHeight) / strength
-				@desktopPan(deltaDir, deltaHeight)
-				@prevDesktopDir = @desktopOrientationLayer.x
-				@prevDesktopHeight = @desktopOrientationLayer.y
-
-		@desktopOrientationLayer.on Events.AnimationEnd, =>
-			@desktopDraggableActive = false
-			@desktopOrientationLayer?.center()
+		@onPanEnd (data) ->
+			return if not @pan or Utils.isMobile()
+			ratio = @_canvasToComponentRatio()
+			velocityX = (data.velocityX + @_prevVeloX) * 0.5
+			velocityY = (data.velocityY + @_prevVeloY) * 0.5
+			velocityX *= velocityX
+			velocityY *= velocityY
+			velocityX *= ratio.x
+			velocityY *= ratio.y
+			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
+			velo = Math.floor(Math.sqrt(velocityX + velocityY) * 5) / strength
+			@animate
+				properties:
+					heading: @heading - (data.velocityX * ratio.x * 200) / strength
+					elevation: @elevation + (data.velocityY * ratio.y * 200) / strength
+				curve: "spring(300, 100, #{velo})"
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubeSide = @cubeSide/2
