@@ -13,7 +13,7 @@ properties
 - elevation <number>
 - tilt <number> readonly
 
-- orientationLayer <bool>
+- pan <bool>
 - arrowKeys <bool>
 - lookAtLatestProjectedLayer <bool>
 
@@ -136,37 +136,26 @@ class exports.VRComponent extends Layer
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
-			orientationLayer: true
 			arrowKeys: true
+			pan: true
+			flat: true
 		super options
-		@perspective = options.perspective
-		@backgroundColor = null
-		@createCube(options.cubeSide)
+
+		@setupDefaultValues()
 		@degToRad = Math.PI / 180
-		@layersToKeepLevel = []
+		@backgroundColor = null
+
+		@createCube(options.cubeSide)
 		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
 		@arrowKeys = options.arrowKeys
 		@_keys()
 
-		@_heading = 0
-		@_elevation = 0
-		@_tilt = 0
+		@heading = options.heading if options.heading
+		@elevation = options.elevation if options.elevation
 
-		@_headingOffset = 0
-		@_elevationOffset = 0
-		@_deviceHeading = 0
-		@_deviceElevation = 0
+		@pan = options.pan
+		@setupPan()
 
-		if options.heading
-			@heading = options.heading
-		if options.elevation
-			@elevation = options.elevation
-
-		@orientationLayer = options.orientationLayer
-
-		@desktopPan(0, 0)
-
-		# tilting and panning
 		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
 				@orientationData = event
@@ -180,6 +169,16 @@ class exports.VRComponent extends Layer
 		@on "change:frame", ->
 			@desktopPan(0,0)
 
+	setupDefaultValues: =>
+
+		@_heading = 0
+		@_elevation = 0
+		@_tilt = 0
+
+		@_headingOffset = 0
+		@_elevationOffset = 0
+		@_deviceHeading = 0
+		@_deviceElevation = 0
 
 	_keys: ->
 		document.addEventListener "keydown", (event) =>
@@ -220,16 +219,6 @@ class exports.VRComponent extends Layer
 			KEYSDOWN.left = false
 			KEYSDOWN.right = false
 
-	@define "orientationLayer",
-		get: -> return @desktopOrientationLayer != null && @desktopOrientationLayer != undefined
-		set: (value) ->
-			if @world != undefined
-				if Utils.isDesktop()
-					if value == true
-						@addDesktopPanLayer()
-					else if value == false
-						@removeDesktopPanLayer()
-
 	@define "heading",
 		get: ->
 			heading = @_heading + @_headingOffset
@@ -244,7 +233,9 @@ class exports.VRComponent extends Layer
 
 	@define "elevation",
 		get: -> @_elevation
-		set: (value) -> @lookAt(@_heading, value)
+		set: (value) ->
+			value = Utils.clamp(value, -90, 90)
+			@lookAt(@_heading, value)
 
 	@define "tilt",
 		get: -> @_tilt
@@ -265,44 +256,41 @@ class exports.VRComponent extends Layer
 			width: cubeSide, height: cubeSide
 			backgroundColor: null
 			clip: false
-		@world.style.webkitTransformStyle = "preserve-3d"
 		@world.center()
 
+		@sides = []
 		halfCubeSide = @cubeSide/2
-
-		@side0 = new Layer
-		@side0.style["webkitTransform"] = "rotateX(-90deg) translateZ(-#{halfCubeSide}px)"
-		@side1 = new Layer
-		@side1.style["webkitTransform"] = "rotateY(-90deg) translateZ(-#{halfCubeSide}px) rotateZ(90deg)"
-		@side2 = new Layer
-		@side2.style["webkitTransform"] = "rotateX(90deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
-		@side3 = new Layer
-		@side3.style["webkitTransform"] = "rotateY(90deg) translateZ(-#{halfCubeSide}px) rotateZ(-90deg)"
-		@side4 = new Layer
-		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
-		@side5 = new Layer
-		@side5.style["webkitTransform"] = "translateZ(-#{halfCubeSide}px)"
-
-		@sides = [@side0, @side1, @side2, @side3, @side4, @side5]
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
 		sideNames = ["front", "right", "back", "left", "top", "bottom"]
 
-		index = 0
-		for side in @sides
-			side.name = sideNames[index]
-			side.width = side.height = cubeSide
-			side.superLayer = @world
-			side.html = sideNames[index]
-			side.color = "white"
-			side._backgroundColor = colors[index]
-			side.backgroundColor = colors[index]
-			side.style =
-				lineHeight: "#{cubeSide}px"
-				textAlign: "center"
-				fontSize: "#{cubeSide / 10}px"
-				fontWeight: "100"
-				fontFamily: "Helvetica Neue"
-			index++
+		for sideIndex in [0...6]
+
+			rotationX = 0
+			rotationX = -90 if sideIndex in [0...4]
+			rotationX = 180 if sideIndex == 4
+
+			rotationY = 0
+			rotationY = sideIndex * -90 if sideIndex in [0...4]
+
+			side = new Layer
+				size: cubeSide
+				z: -halfCubeSide
+				originZ: halfCubeSide
+				rotationX: rotationX
+				rotationY: rotationY
+				superLayer: @world
+				name: sideNames[sideIndex]
+				html: sideNames[sideIndex]
+				color: "white"
+				backgroundColor: colors[sideIndex]
+				style:
+					lineHeight: "#{cubeSide}px"
+					textAlign: "center"
+					fontSize: "#{cubeSide / 10}px"
+					fontWeight: "100"
+					fontFamily: "Helvetica Neue"
+			@sides.push(side)
+			side._backgroundColor = side.backgroundColor
 
 		if @sideImages
 			for key of @sideImages
@@ -313,17 +301,18 @@ class exports.VRComponent extends Layer
 			side.destroy()
 
 	layerFromFace: (face) ->
+
 		map =
-			north: @side0
-			front: @side0
-			east:  @side1
-			right: @side1
-			south: @side2
-			back:  @side2
-			west:  @side3
-			left:  @side3
-			top:   @side4
-			bottom:@side5
+			north: @sides[0]
+			front: @sides[0]
+			east:  @sides[1]
+			right: @sides[1]
+			south: @sides[2]
+			back:  @sides[2]
+			west:  @sides[3]
+			left:  @sides[3]
+			top:   @sides[4]
+			bottom:@sides[5]
 		return map[face]
 
 	setImage: (face, imagePath) ->
@@ -516,9 +505,7 @@ class exports.VRComponent extends Layer
 		tilt = Math.round(tilt * 1000) / 1000
 		orientationTiltOffset = (window.orientation * -1) + 90
 		tilt += orientationTiltOffset
-		if tilt > 180
-			diff = tilt - 180
-			tilt = -180 + diff
+		tilt -= 360 if tilt > 180
 		@_tilt = tilt
 
 		@_deviceHeading = @_heading
@@ -526,41 +513,47 @@ class exports.VRComponent extends Layer
 
 		@_emitOrientationDidChangeEvent()
 
-	# Desktop tilt
+	# Panning
 
-	removeDesktopPanLayer: =>
-		@desktopOrientationLayer?.destroy()
+	_canvasToComponentRatio: =>
+		pointA = Utils.convertPointFromContext({x:0, y:0}, @, true)
+		pointB = Utils.convertPointFromContext({x:1, y:1}, @, true)
+		xDist = Math.abs(pointA.x - pointB.x)
+		yDist = Math.abs(pointA.y - pointB.y)
+		return {x:xDist, y:yDist}
 
-	addDesktopPanLayer: =>
-		@desktopOrientationLayer?.destroy()
-		@desktopOrientationLayer = new Layer
-			width: 100000, height: 10000
-			backgroundColor: null
-			superLayer:@
-			name: "desktopOrientationLayer"
-		@desktopOrientationLayer.center()
-		@desktopOrientationLayer.draggable.enabled = true
+	setupPan: =>
 
-		@prevDesktopDir = @desktopOrientationLayer.x
-		@prevDesktopHeight = @desktopOrientationLayer.y
+		@desktopPan(0, 0)
 
-		@desktopOrientationLayer.on Events.DragStart, =>
-			@prevDesktopDir = @desktopOrientationLayer.x
-			@prevDesktopHeight = @desktopOrientationLayer.y
-			@desktopDraggableActive = true
+		@onMouseDown -> @animateStop()
 
-		@desktopOrientationLayer.on Events.Move, =>
-			if @desktopDraggableActive
-				strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
-				deltaDir = (@desktopOrientationLayer.x - @prevDesktopDir) / strength
-				deltaHeight = (@desktopOrientationLayer.y - @prevDesktopHeight) / strength
-				@desktopPan(deltaDir, deltaHeight)
-				@prevDesktopDir = @desktopOrientationLayer.x
-				@prevDesktopHeight = @desktopOrientationLayer.y
+		@onPan (data) ->
+			return if not @pan or Utils.isMobile()
+			ratio = @_canvasToComponentRatio()
+			deltaX = data.deltaX * ratio.x
+			deltaY = data.deltaY * ratio.y
+			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
+			@desktopPan(deltaX / strength, deltaY / strength)
+			@_prevVeloX = data.velocityX
+			@_prevVeloU = data.velocityY
 
-		@desktopOrientationLayer.on Events.AnimationEnd, =>
-			@desktopDraggableActive = false
-			@desktopOrientationLayer?.center()
+		@onPanEnd (data) ->
+			return if not @pan or Utils.isMobile()
+			ratio = @_canvasToComponentRatio()
+			velocityX = (data.velocityX + @_prevVeloX) * 0.5
+			velocityY = (data.velocityY + @_prevVeloY) * 0.5
+			velocityX *= velocityX
+			velocityY *= velocityY
+			velocityX *= ratio.x
+			velocityY *= ratio.y
+			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
+			velo = Math.floor(Math.sqrt(velocityX + velocityY) * 5) / strength
+			@animate
+				properties:
+					heading: @heading - (data.velocityX * ratio.x * 200) / strength
+					elevation: @elevation + (data.velocityY * ratio.y * 200) / strength
+				curve: "spring(300, 100, #{velo})"
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubeSide = @cubeSide/2

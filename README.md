@@ -11,7 +11,7 @@ Read more on the associated [blogpost](http://blog.framerjs.com/posts/design-vir
 - [Event data](http://share.framerjs.com/lhqbyvlz5t9h/)
 - [Space puzzle](http://share.framerjs.com/4v5wono2two5/)
 
-On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the `orientationLayer` or by using your arrow keys. The  `orientationLayer` blocks all click and tap events of projected layers. If these events are important for your prototype you can disable the `orientationLayer`.
+On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the environment or by using your arrow keys.
 
 ## Properties
 - **`front`** (set: imagePath *\<string>*, get: layer)
@@ -24,7 +24,7 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number, readonly>* (-180 to 180 degrees)
 - **`lookAtLatestProjectedLayer`** *\<bool>*
-- **`orientationLayer`** *\<bool>*
+- **`pan`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
 
 ```coffee
