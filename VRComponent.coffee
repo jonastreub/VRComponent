@@ -139,33 +139,22 @@ class exports.VRComponent extends Layer
 			arrowKeys: true
 			pan: true
 		super options
-		@perspective = options.perspective
-		@pan = options.pan
-		@backgroundColor = null
-		@createCube(options.cubeSide)
+
+		@setupDefaultValues()
 		@degToRad = Math.PI / 180
-		@layersToKeepLevel = []
+		@backgroundColor = null
+
+		@createCube(options.cubeSide)
 		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
 		@arrowKeys = options.arrowKeys
 		@_keys()
 
-		@_heading = 0
-		@_elevation = 0
-		@_tilt = 0
+		@heading = options.heading if options.heading
+		@elevation = options.elevation if options.elevation
 
-		@_headingOffset = 0
-		@_elevationOffset = 0
-		@_deviceHeading = 0
-		@_deviceElevation = 0
+		@pan = options.pan
+		@setupPan()
 
-		if options.heading
-			@heading = options.heading
-		if options.elevation
-			@elevation = options.elevation
-
-		@desktopPan(0, 0)
-
-		# tilting and panning
 		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
 				@orientationData = event
@@ -176,11 +165,19 @@ class exports.VRComponent extends Layer
 		Framer.CurrentContext.on "reset", ->
 			Framer.Loop.off("update", @deviceOrientationUpdate)
 
-		@setupPan()
-
 		@on "change:frame", ->
 			@desktopPan(0,0)
 
+	setupDefaultValues: =>
+
+		@_heading = 0
+		@_elevation = 0
+		@_tilt = 0
+
+		@_headingOffset = 0
+		@_elevationOffset = 0
+		@_deviceHeading = 0
+		@_deviceElevation = 0
 
 	_keys: ->
 		document.addEventListener "keydown", (event) =>
@@ -525,6 +522,8 @@ class exports.VRComponent extends Layer
 		return {x:xDist, y:yDist}
 
 	setupPan: =>
+
+		@desktopPan(0, 0)
 
 		@onMouseDown -> @animateStop()
 
