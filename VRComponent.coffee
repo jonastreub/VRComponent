@@ -258,8 +258,8 @@ class exports.VRComponent extends Layer
 			clip: false
 		@world.center()
 
+		@sides = []
 		halfCubeSide = @cubeSide/2
-
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
 		sideNames = ["front", "right", "back", "left", "top", "bottom"]
 
@@ -289,6 +289,7 @@ class exports.VRComponent extends Layer
 					fontSize: "#{cubeSide / 10}px"
 					fontWeight: "100"
 					fontFamily: "Helvetica Neue"
+			@sides.push(side)
 			side._backgroundColor = side.backgroundColor
 
 		if @sideImages
