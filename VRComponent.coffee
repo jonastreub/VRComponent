@@ -233,7 +233,9 @@ class exports.VRComponent extends Layer
 
 	@define "elevation",
 		get: -> @_elevation
-		set: (value) -> @lookAt(@_heading, value)
+		set: (value) ->
+			value = Utils.clamp(value, -90, 90)
+			@lookAt(@_heading, value)
 
 	@define "tilt",
 		get: -> @_tilt
