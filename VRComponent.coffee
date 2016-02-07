@@ -260,39 +260,36 @@ class exports.VRComponent extends Layer
 
 		halfCubeSide = @cubeSide/2
 
-		@side0 = new Layer
-		@side0.style["webkitTransform"] = "rotateX(-90deg) translateZ(-#{halfCubeSide}px)"
-		@side1 = new Layer
-		@side1.style["webkitTransform"] = "rotateY(-90deg) translateZ(-#{halfCubeSide}px) rotateZ(90deg)"
-		@side2 = new Layer
-		@side2.style["webkitTransform"] = "rotateX(90deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
-		@side3 = new Layer
-		@side3.style["webkitTransform"] = "rotateY(90deg) translateZ(-#{halfCubeSide}px) rotateZ(-90deg)"
-		@side4 = new Layer
-		@side4.style["webkitTransform"] = "rotateY(-180deg) translateZ(-#{halfCubeSide}px) rotateZ(180deg)"
-		@side5 = new Layer
-		@side5.style["webkitTransform"] = "translateZ(-#{halfCubeSide}px)"
-
-		@sides = [@side0, @side1, @side2, @side3, @side4, @side5]
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
 		sideNames = ["front", "right", "back", "left", "top", "bottom"]
 
-		index = 0
-		for side in @sides
-			side.name = sideNames[index]
-			side.width = side.height = cubeSide
-			side.superLayer = @world
-			side.html = sideNames[index]
-			side.color = "white"
-			side._backgroundColor = colors[index]
-			side.backgroundColor = colors[index]
-			side.style =
-				lineHeight: "#{cubeSide}px"
-				textAlign: "center"
-				fontSize: "#{cubeSide / 10}px"
-				fontWeight: "100"
-				fontFamily: "Helvetica Neue"
-			index++
+		for sideIndex in [0...6]
+
+			rotationX = 0
+			rotationX = -90 if sideIndex in [0...4]
+			rotationX = 180 if sideIndex == 4
+
+			rotationY = 0
+			rotationY = sideIndex * -90 if sideIndex in [0...4]
+
+			side = new Layer
+				size: cubeSide
+				z: -halfCubeSide
+				originZ: halfCubeSide
+				rotationX: rotationX
+				rotationY: rotationY
+				superLayer: @world
+				name: sideNames[sideIndex]
+				html: sideNames[sideIndex]
+				color: "white"
+				backgroundColor: colors[sideIndex]
+				style:
+					lineHeight: "#{cubeSide}px"
+					textAlign: "center"
+					fontSize: "#{cubeSide / 10}px"
+					fontWeight: "100"
+					fontFamily: "Helvetica Neue"
+			side._backgroundColor = side.backgroundColor
 
 		if @sideImages
 			for key of @sideImages
@@ -303,17 +300,18 @@ class exports.VRComponent extends Layer
 			side.destroy()
 
 	layerFromFace: (face) ->
+
 		map =
-			north: @side0
-			front: @side0
-			east:  @side1
-			right: @side1
-			south: @side2
-			back:  @side2
-			west:  @side3
-			left:  @side3
-			top:   @side4
-			bottom:@side5
+			north: @sides[0]
+			front: @sides[0]
+			east:  @sides[1]
+			right: @sides[1]
+			south: @sides[2]
+			back:  @sides[2]
+			west:  @sides[3]
+			left:  @sides[3]
+			top:   @sides[4]
+			bottom:@sides[5]
 		return map[face]
 
 	setImage: (face, imagePath) ->
