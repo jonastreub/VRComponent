@@ -516,9 +516,7 @@ class exports.VRComponent extends Layer
 		tilt = Math.round(tilt * 1000) / 1000
 		orientationTiltOffset = (window.orientation * -1) + 90
 		tilt += orientationTiltOffset
-		if tilt > 180
-			diff = tilt - 180
-			tilt = -180 + diff
+		tilt -= 360 if tilt > 180
 		@_tilt = tilt
 
 		@_deviceHeading = @_heading
