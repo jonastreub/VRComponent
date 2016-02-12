@@ -13,8 +13,12 @@ properties
 - elevation <number>
 - tilt <number> readonly
 
-- pan <bool>
+- panning <bool>
 - arrowKeys <bool>
+
+# - mobilePanningX <bool>
+# - mobilePanningY <bool>
+
 - lookAtLatestProjectedLayer <bool>
 
 methods
@@ -137,7 +141,7 @@ class exports.VRComponent extends Layer
 			width: Screen.width
 			height: Screen.height
 			arrowKeys: true
-			pan: true
+			panning: true
 			flat: true
 		super options
 
@@ -147,14 +151,12 @@ class exports.VRComponent extends Layer
 
 		@createCube(options.cubeSide)
 		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
-		@arrowKeys = options.arrowKeys
-		@_keys()
+		@setupKeys(options.arrowKeys)
 
 		@heading = options.heading if options.heading
 		@elevation = options.elevation if options.elevation
 
-		@pan = options.pan
-		@setupPan()
+		@setupPan(options.panning)
 
 		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
@@ -180,38 +182,39 @@ class exports.VRComponent extends Layer
 		@_deviceHeading = 0
 		@_deviceElevation = 0
 
-	_keys: ->
+	setupKeys: (enabled) ->
+
+		@arrowKeys = enabled
+
 		document.addEventListener "keydown", (event) =>
-			if @arrowKeys
-				switch event.which
-					when KEYS.UpArrow
-						KEYSDOWN.up = true
-						event.preventDefault()
-					when KEYS.DownArrow
-						KEYSDOWN.down = true
-						event.preventDefault()
-					when KEYS.LeftArrow
-						KEYSDOWN.left = true
-						event.preventDefault()
-					when KEYS.RightArrow
-						KEYSDOWN.right = true
-						event.preventDefault()
+			switch event.which
+				when KEYS.UpArrow
+					KEYSDOWN.up = true
+					event.preventDefault()
+				when KEYS.DownArrow
+					KEYSDOWN.down = true
+					event.preventDefault()
+				when KEYS.LeftArrow
+					KEYSDOWN.left = true
+					event.preventDefault()
+				when KEYS.RightArrow
+					KEYSDOWN.right = true
+					event.preventDefault()
 
 		document.addEventListener "keyup", (event) =>
-			if @arrowKeys
-				switch event.which
-					when KEYS.UpArrow
-						KEYSDOWN.up = false
-						event.preventDefault()
-					when KEYS.DownArrow
-						KEYSDOWN.down = false
-						event.preventDefault()
-					when KEYS.LeftArrow
-						KEYSDOWN.left = false
-						event.preventDefault()
-					when KEYS.RightArrow
-						KEYSDOWN.right = false
-						event.preventDefault()
+			switch event.which
+				when KEYS.UpArrow
+					KEYSDOWN.up = false
+					event.preventDefault()
+				when KEYS.DownArrow
+					KEYSDOWN.down = false
+					event.preventDefault()
+				when KEYS.LeftArrow
+					KEYSDOWN.left = false
+					event.preventDefault()
+				when KEYS.RightArrow
+					KEYSDOWN.right = false
+					event.preventDefault()
 
 		window.onblur = ->
 			KEYSDOWN.up = false
@@ -522,24 +525,32 @@ class exports.VRComponent extends Layer
 		yDist = Math.abs(pointA.y - pointB.y)
 		return {x:xDist, y:yDist}
 
-	setupPan: =>
+	setupPan: (enabled) =>
 
+		@panning = enabled
 		@desktopPan(0, 0)
 
 		@onMouseDown -> @animateStop()
 
 		@onPan (data) ->
-			return if not @pan or Utils.isMobile()
+			return if not @panning
 			ratio = @_canvasToComponentRatio()
 			deltaX = data.deltaX * ratio.x
 			deltaY = data.deltaY * ratio.y
 			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
-			@desktopPan(deltaX / strength, deltaY / strength)
+
+			if Utils.isMobile()
+				heading = @heading - (deltaX / strength)
+				@lookAt(heading, @elevation)
+				print heading
+			else
+				@desktopPan(deltaX / strength, deltaY / strength)
+
 			@_prevVeloX = data.velocityX
 			@_prevVeloU = data.velocityY
 
 		@onPanEnd (data) ->
-			return if not @pan or Utils.isMobile()
+			return if not @panning or Utils.isMobile()
 			ratio = @_canvasToComponentRatio()
 			velocityX = (data.velocityX + @_prevVeloX) * 0.5
 			velocityY = (data.velocityY + @_prevVeloY) * 0.5
