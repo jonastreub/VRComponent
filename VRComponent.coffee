@@ -304,7 +304,7 @@ class exports.VRComponent extends Layer
 			side.destroy()
 
 	layerFromFace: (face) ->
-
+		return unless @sides?
 		map =
 			north: @sides[0]
 			front: @sides[0]
