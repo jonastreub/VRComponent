@@ -14,8 +14,8 @@ properties
 - tilt <number> readonly
 
 - panning <bool>
-- arrowKeys <bool>
 - mobilePanning <bool>
+- arrowKeys <bool>
 
 - lookAtLatestProjectedLayer <bool>
 
@@ -24,7 +24,7 @@ methods
 - hideEnviroment()
 
 events
-- Events.OrientationDidChange, (data {heading, elevation, tilt})
+- onOrientationChange (data {heading, elevation, tilt})
 
 --------------------------------------------------------------------------------
 
@@ -611,3 +611,7 @@ class exports.VRComponent extends Layer
 
 	_emitOrientationDidChangeEvent: ->
 		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @_elevation, tilt: @_tilt})
+
+	# event shortcuts
+
+	onOrientationChange:(cb) -> @on(Events.OrientationDidChange, cb)

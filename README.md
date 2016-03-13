@@ -97,10 +97,10 @@ layerA.animate
 ```
 
 ## Events
-- **`Events.OrientationDidChange`**, (*\<object>* {heading, elevation, tilt})
+- **`onOrientationChange`** (*\<object>* {heading, elevation, tilt})
 
 ```coffee
-vr.on Events.OrientationDidChange, (data) ->
+vr.onOrientationChange (data) ->
 	heading = data.heading
 	elevation = data.elevation
 	tilt = data.tilt
