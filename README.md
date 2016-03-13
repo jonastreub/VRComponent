@@ -20,13 +20,22 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`left`** (set: imagePath *\<string>*, get: layer)
 - **`top`** (set: imagePath *\<string>*, get: layer)
 - **`bottom`** (set: imagePath *\<string>*, get: layer)
+
+--
+
 - **`heading`** *\<number>* (0 to 360 degrees)
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number, readonly>* (-180 to 180 degrees)
-- **`lookAtLatestProjectedLayer`** *\<bool>*
+
+--
+
 - **`panning`** *\<bool>*
 - **`mobilePanning`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
+
+--
+
+- **`lookAtLatestProjectedLayer`** *\<bool>*
 
 ```coffee
 # Include the VRComponent
