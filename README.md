@@ -20,14 +20,12 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`left`** (set: imagePath *\<string>*, get: layer)
 - **`top`** (set: imagePath *\<string>*, get: layer)
 - **`bottom`** (set: imagePath *\<string>*, get: layer)
-
---
-
 - **`panning`** *\<bool>*
 - **`mobilePanning`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
 - **`lookAtLatestProjectedLayer`** *\<bool>* (handy during initial setup)
 
+--
 ```coffee
 # Include the VRComponent
 {VRComponent, VRLayer} = require "VRComponent"
