@@ -69,27 +69,30 @@ class VRAnchorLayer extends Layer
 
 	constructor: (layer, cubeSide) ->
 		super undefined
-		@width = 0
-		@height = 0
+		@width = 2
+		@height = 2
 		@clip = false
 		@name = "anchor"
 		@cubeSide = cubeSide
 
 		@layer = layer
-		layer.superLayer = @
+		layer.parent = @
 		layer.center()
 
-		layer.on "change:orientation", (newValue, layer) =>
-			@updatePosition(layer)
+		layer.on "change:orientation", (newValue, layer) => @updatePosition(layer)
 		@updatePosition(layer)
 
 		layer._context.on "layer:destroy", (layer) =>
-			if layer == @layer
-				@destroy()
+			@destroy() if layer is @layer
 
 	updatePosition: (layer) ->
-		halfCubeSide = @cubeSide/2
-		@style["webkitTransform"] = "translateX(#{(@cubeSide - @width)/2}px) translateY(#{(@cubeSide - @height)/2}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{layer.distance}px) rotateX(180deg)"
+		halfCubeSide = @cubeSide / 2
+		@midX = halfCubeSide
+		@midY = halfCubeSide
+		@z = - layer.distance
+		@originZ = layer.distance
+		@rotationX = -90 - layer.elevation
+		@rotationY = -layer.heading
 
 class exports.VRLayer extends Layer
 
