@@ -141,6 +141,7 @@ class exports.VRComponent extends Layer
 			arrowKeys: true
 			panning: true
 			flat: true
+			clip: true
 		super options
 
 		# to hide the seems where the cube surfaces come together we disable the viewport perspective and set a black background
