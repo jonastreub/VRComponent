@@ -155,8 +155,8 @@ class exports.VRComponent extends Layer
 		@lookAtLatestProjectedLayer = options.lookAtLatestProjectedLayer
 		@setupKeys(options.arrowKeys)
 
-		@heading = options.heading if options.heading
-		@elevation = options.elevation if options.elevation
+		@heading = options.heading if options.heading?
+		@elevation = options.elevation if options.elevation?
 
 		@setupPan(options.panning)
 
