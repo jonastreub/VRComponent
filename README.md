@@ -23,19 +23,10 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 
 --
 
-- **`heading`** *\<number>* (0 to 360 degrees)
-- **`elevation`** *\<number>* (-90 to 90 degrees)
-- **`tilt`** *\<number, readonly>* (-180 to 180 degrees)
-
---
-
 - **`panning`** *\<bool>*
 - **`mobilePanning`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
-
---
-
-- **`lookAtLatestProjectedLayer`** *\<bool>*
+- **`lookAtLatestProjectedLayer`** *\<bool>* (handy during initial setup)
 
 ```coffee
 # Include the VRComponent
