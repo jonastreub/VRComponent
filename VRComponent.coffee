@@ -140,6 +140,7 @@ class exports.VRComponent extends Layer
 			height: Screen.height
 			arrowKeys: true
 			panning: true
+			mobilePanning: true
 			flat: true
 			clip: true
 		super options
@@ -160,6 +161,7 @@ class exports.VRComponent extends Layer
 		@elevation = options.elevation if options.elevation?
 
 		@setupPan(options.panning)
+		@mobilePanning = options.mobilePanning
 
 		if Utils.isMobile()
 			window.addEventListener "deviceorientation", (event) =>
@@ -528,9 +530,9 @@ class exports.VRComponent extends Layer
 		@panning = enabled
 		@desktopPan(0, 0)
 
-		@onMouseDown -> @animateStop()
+		@onMouseDown => @animateStop()
 
-		@onPan (data) ->
+		@onPan (data) =>
 			return if not @panning
 			ratio = @_canvasToComponentRatio()
 			deltaX = data.deltaX * ratio.x
@@ -538,16 +540,14 @@ class exports.VRComponent extends Layer
 			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
 
 			if Utils.isMobile()
-				heading = @heading - (deltaX / strength)
-				@lookAt(heading, @elevation)
-				print heading
+				@_headingOffset -= (deltaX / strength) if @mobilePanning
 			else
 				@desktopPan(deltaX / strength, deltaY / strength)
 
 			@_prevVeloX = data.velocityX
 			@_prevVeloU = data.velocityY
 
-		@onPanEnd (data) ->
+		@onPanEnd (data) =>
 			return if not @panning or Utils.isMobile()
 			ratio = @_canvasToComponentRatio()
 			velocityX = (data.velocityX + @_prevVeloX) * 0.5
