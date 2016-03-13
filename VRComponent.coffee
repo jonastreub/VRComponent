@@ -15,9 +15,7 @@ properties
 
 - panning <bool>
 - arrowKeys <bool>
-
-# - mobilePanningX <bool>
-# - mobilePanningY <bool>
+- mobilePanning <bool>
 
 - lookAtLatestProjectedLayer <bool>
 
@@ -144,6 +142,10 @@ class exports.VRComponent extends Layer
 			panning: true
 			flat: true
 		super options
+
+		# to hide the seems where the cube surfaces come together we disable the viewport perspective and set a black background
+		Screen.backgroundColor = "black"
+		Screen.perspective = 0
 
 		@setupDefaultValues()
 		@degToRad = Math.PI / 180
@@ -348,11 +350,7 @@ class exports.VRComponent extends Layer
 	projectLayer: (insertLayer) ->
 
 		heading = insertLayer.heading
-		if heading == undefined
-			heading = 0
-		elevation = insertLayer.elevation
-		if elevation == undefined
-			elevation = 0
+		heading = 0 unless heading?
 
 		if heading >= 360
 			heading = value % 360
@@ -360,11 +358,12 @@ class exports.VRComponent extends Layer
 			rest = Math.abs(heading) % 360
 			heading = 360 - rest
 
+		elevation = insertLayer.elevation
+		elevation = 0 unless elevation?
 		elevation = Utils.clamp(elevation, -90, 90)
 
 		distance = insertLayer.distance
-		if distance == undefined
-			distance = 1200
+		distance = 1200 unless distance?
 
 		insertLayer.heading = heading
 		insertLayer.elevation = elevation
@@ -373,8 +372,7 @@ class exports.VRComponent extends Layer
 		anchor = new VRAnchorLayer(insertLayer, @cubeSide)
 		anchor.superLayer = @world
 
-		if @lookAtLatestProjectedLayer
-			@lookAt(heading, elevation)
+		@lookAt(heading, elevation) if @lookAtLatestProjectedLayer
 
 	# Mobile device orientation
 
@@ -438,8 +436,7 @@ class exports.VRComponent extends Layer
 			beta = @orientationData.beta
 			gamma = @orientationData.gamma
 
-			if alpha != 0 && beta != 0 && gamma != 0
-				@directionParams(alpha, beta, gamma)
+			@directionParams(alpha, beta, gamma) if alpha != 0 && beta != 0 && gamma != 0
 
 			xAngle = beta
 			yAngle = -gamma
