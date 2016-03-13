@@ -24,7 +24,8 @@ On mobile the orientation is synced to that of your device. On desktop you can c
 - **`elevation`** *\<number>* (-90 to 90 degrees)
 - **`tilt`** *\<number, readonly>* (-180 to 180 degrees)
 - **`lookAtLatestProjectedLayer`** *\<bool>*
-- **`pan`** *\<bool>*
+- **`panning`** *\<bool>*
+- **`mobilePanning`** *\<bool>*
 - **`arrowKeys`** *\<bool>*
 
 ```coffee
