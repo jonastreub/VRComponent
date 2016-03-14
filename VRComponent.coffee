@@ -82,8 +82,7 @@ class VRAnchorLayer extends Layer
 		layer.on "change:orientation", (newValue, layer) => @updatePosition(layer)
 		@updatePosition(layer)
 
-		layer._context.on "layer:destroy", (layer) =>
-			@destroy() if layer is @layer
+		layer._context.on "layer:destroy", (layer) => @destroy() if layer is @layer
 
 	updatePosition: (layer) ->
 		halfCubeSide = @cubeSide / 2
@@ -110,24 +109,26 @@ class exports.VRLayer extends Layer
 			else if value < 0
 				rest = Math.abs(value) % 360
 				value = 360 - rest
-			if @_heading != value
-				@_heading = value
-				@emit("change:heading", value)
-				@emit("change:orientation", value)
+			roundedValue = Math.round(value * 1000) / 1000
+			if @_heading isnt roundedValue
+				@_heading = roundedValue
+				@emit("change:heading", @_heading)
+				@emit("change:orientation", @_heading)
 
 	@define "elevation",
 		get: -> @_elevation
 		set: (value) ->
 			value = Utils.clamp(value, -90, 90)
-			if value != @_elevation
-				@_elevation = value
-				@emit("change:elevation", value)
-				@emit("change:orientation", value)
+			roundedValue = Math.round(value * 1000) / 1000
+			if roundedValue isnt @_elevation
+				@_elevation = roundedValue
+				@emit("change:elevation", roundedValue)
+				@emit("change:orientation", roundedValue)
 
 	@define "distance",
 		get: -> @_distance
 		set: (value) ->
-			if value != @_distance
+			if value isnt @_distance
 				@_distance = value
 				@emit("change:distance", value)
 				@emit("change:orientation", value)
@@ -167,17 +168,14 @@ class exports.VRComponent extends Layer
 		@mobilePanning = options.mobilePanning
 
 		if Utils.isMobile()
-			window.addEventListener "deviceorientation", (event) =>
-				@orientationData = event
+			window.addEventListener "deviceorientation", (event) => @orientationData = event
 
 		Framer.Loop.on("update", @deviceOrientationUpdate)
 
 		# Make sure we remove the update from the loop when we destroy the context
-		Framer.CurrentContext.on "reset", ->
-			Framer.Loop.off("update", @deviceOrientationUpdate)
+		Framer.CurrentContext.on "reset", -> Framer.Loop.off("update", @deviceOrientationUpdate)
 
-		@on "change:frame", ->
-			@desktopPan(0,0)
+		@on "change:frame", -> @desktopPan(0,0)
 
 	setupDefaultValues: =>
 
@@ -238,12 +236,12 @@ class exports.VRComponent extends Layer
 			else if heading < 0
 				rest = Math.abs(heading) % 360
 				heading = 360 - rest
-			return heading
+			return Math.round(heading * 1000) / 1000
 		set: (value) ->
 			@lookAt(value, @_elevation)
 
 	@define "elevation",
-		get: -> @_elevation
+		get: -> Math.round(@_elevation * 1000) / 1000
 		set: (value) ->
 			value = Utils.clamp(value, -90, 90)
 			@lookAt(@_heading, value)
@@ -264,13 +262,13 @@ class exports.VRComponent extends Layer
 		@world = new Layer
 			name: "world"
 			superLayer: @
-			width: cubeSide, height: cubeSide
+			size: cubeSide
 			backgroundColor: null
 			clip: false
 		@world.center()
 
 		@sides = []
-		halfCubeSide = @cubeSide/2
+		halfCubeSide = @cubeSide / 2
 		colors = ["#866ccc", "#28affa", "#2dd7aa", "#ffc22c", "#7ddd11", "#f95faa"]
 		sideNames = ["front", "right", "back", "left", "top", "bottom"]
 
@@ -278,7 +276,7 @@ class exports.VRComponent extends Layer
 
 			rotationX = 0
 			rotationX = -90 if sideIndex in [0...4]
-			rotationX = 180 if sideIndex == 4
+			rotationX = 180 if sideIndex is 4
 
 			rotationY = 0
 			rotationY = sideIndex * -90 if sideIndex in [0...4]
@@ -289,7 +287,7 @@ class exports.VRComponent extends Layer
 				originZ: halfCubeSide
 				rotationX: rotationX
 				rotationY: rotationY
-				superLayer: @world
+				parent: @world
 				name: sideNames[sideIndex]
 				html: sideNames[sideIndex]
 				color: "white"
@@ -303,9 +301,8 @@ class exports.VRComponent extends Layer
 			@sides.push(side)
 			side._backgroundColor = side.backgroundColor
 
-		if @sideImages
-			for key of @sideImages
-				@setImage key, @sideImages[key]
+		for key of @sideImages when @sideImages?
+			@setImage key, @sideImages[key]
 
 	hideEnviroment: ->
 		for side in @sides
@@ -328,16 +325,14 @@ class exports.VRComponent extends Layer
 
 	setImage: (face, imagePath) ->
 
-		if not face in SIDES
-			throw Error "VRComponent setImage, wrong name for face: " + face + ", valid options: front, right, back, left, top, bottom, north, east, south, west"
+		throw Error "VRComponent setImage, wrong name for face: " + face + ", valid options: front, right, back, left, top, bottom, north, east, south, west" unless face in SIDES
 
-		if not @sideImages
-			@sideImages = {}
+		@sideImages = {} unless @sideImages?
 		@sideImages[face] = imagePath
 
 		layer = @layerFromFace(face)
 
-		if imagePath
+		if imagePath?
 			layer?.html = ""
 			layer?.image = imagePath
 		else
@@ -346,12 +341,10 @@ class exports.VRComponent extends Layer
 
 	getImage: (face) ->
 
-		if not face in SIDES
-			throw Error "VRComponent getImage, wrong name for face: " + face + ", valid options: front, right, back, left, top, bottom, north, east, south, west"
+		throw Error "VRComponent getImage, wrong name for face: " + face + ", valid options: front, right, back, left, top, bottom, north, east, south, west" unless face in SIDES
 
 		layer = @layerFromFace(face)
-		if layer
-			layer.image
+		return layer.image if layer?
 
 	projectLayer: (insertLayer) ->
 
@@ -386,7 +379,7 @@ class exports.VRComponent extends Layer
 
 		if Utils.isDesktop()
 			if @arrowKeys
-				if @_lastCallHorizontal == undefined
+				if @_lastCallHorizontal is undefined
 					@_lastCallHorizontal = 0
 					@_lastCallVertical = 0
 					@_accelerationHorizontal = 1
@@ -396,18 +389,18 @@ class exports.VRComponent extends Layer
 
 				date = new Date()
 				x = .1
-				if KEYSDOWN.up || KEYSDOWN.down
+				if KEYSDOWN.up or KEYSDOWN.down
 					diff = date - @_lastCallVertical
 					if diff < 30
 						if @_accelerationVertical < 30
 							@_accelerationVertical += 0.18
 					if KEYSDOWN.up
-						if @_goingUp == false
+						if @_goingUp is false
 							@_accelerationVertical = 1
 							@_goingUp = true
 						@desktopPan(0, 1 * @_accelerationVertical * x)
 					else
-						if @_goingUp == true
+						if @_goingUp is true
 							@_accelerationVertical = 1
 							@_goingUp = false
 
@@ -417,18 +410,18 @@ class exports.VRComponent extends Layer
 				else
 					@_accelerationVertical = 1
 
-				if KEYSDOWN.left || KEYSDOWN.right
+				if KEYSDOWN.left or KEYSDOWN.right
 					diff = date - @_lastCallHorizontal
 					if diff < 30
 						if @_accelerationHorizontal < 25
 							@_accelerationHorizontal += 0.18
 					if KEYSDOWN.left
-						if @_goingLeft == false
+						if @_goingLeft is false
 							@_accelerationHorizontal = 1
 							@_goingLeft = true
 						@desktopPan(1 * @_accelerationHorizontal * x, 0)
 					else
-						if @_goingLeft == true
+						if @_goingLeft is true
 							@_accelerationHorizontal = 1
 							@_goingLeft = false
 						@desktopPan(-1 * @_accelerationHorizontal * x, 0)
@@ -436,25 +429,20 @@ class exports.VRComponent extends Layer
 				else
 					@_accelerationHorizontal = 1
 
-		else if @orientationData
+		else if @orientationData?
 
 			alpha = @orientationData.alpha
 			beta = @orientationData.beta
 			gamma = @orientationData.gamma
 
-			@directionParams(alpha, beta, gamma) if alpha != 0 && beta != 0 && gamma != 0
+			@directionParams(alpha, beta, gamma) if alpha isnt 0 and beta isnt 0 and gamma isnt 0
 
-			xAngle = beta
-			yAngle = -gamma
-			zAngle = alpha
-
-			halfCubeSide = @cubeSide/2
-			orientation = "rotate(#{window.orientation * -1}deg) "
-			translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
-			translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
-			translationZ = " translateZ(#{@perspective}px)"
-			rotation = translationZ + translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
-			@world.style["webkitTransform"] = rotation
+			@world.midX = @midX
+			@world.midY = @midY
+			@world.z = @perspective
+			@world.rotation = -@_heading - @_headingOffset
+			@world.rotationX = 90 + @_elevation
+			@world.rotationY = @_tilt
 
 	directionParams: (alpha, beta, gamma) ->
 
@@ -516,7 +504,6 @@ class exports.VRComponent extends Layer
 
 		@_deviceHeading = @_heading
 		@_deviceElevation = @_elevation
-
 		@_emitOrientationDidChangeEvent()
 
 	# Panning
@@ -569,9 +556,6 @@ class exports.VRComponent extends Layer
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubeSide = @cubeSide/2
-		translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
-		translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
-		translationZ = " translateZ(#{@perspective}px)"
 		@_heading -= deltaDir
 
 		if @_heading > 360
@@ -582,26 +566,26 @@ class exports.VRComponent extends Layer
 		@_elevation += deltaHeight
 		@_elevation = Utils.clamp(@_elevation, -90, 90)
 
-		rotation = translationZ + translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
-		@world.style["webkitTransform"] = rotation
+		@world.midX = @midX
+		@world.midY = @midY
+		@world.z = @perspective
+		@world.rotationX = 90 + @_elevation
+		@world.rotation = -@_heading - @_headingOffset
 
-		@_heading = Math.round(@_heading * 1000) / 1000
-		@_tilt = 0
 		@_emitOrientationDidChangeEvent()
 
 	lookAt: (heading, elevation) ->
-		halfCubeSide = @cubeSide/2
-		translationX = "translateX(#{(@width / 2) - halfCubeSide}px)"
-		translationY = " translateY(#{(@height / 2) - halfCubeSide}px)"
-		translationZ = " translateZ(#{@perspective}px)"
-		rotation = translationZ + translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 
-		@world?.style["webkitTransform"] = rotation
+		@world.midX = @midX
+		@world.midY = @midY
+		@world.z = @perspective
+		@world.rotationX = 90 + @_elevation
+		@world.rotation = -@_heading
+		@world.rotationY = @_tilt
+
 		@_heading = heading
 		@_elevation = elevation
-		if Utils.isMobile()
-			@_headingOffset = @_heading - @_deviceHeading
-
+		@_headingOffset = @_heading - @_deviceHeading if Utils.isMobile()
 		@_elevationOffset = @_elevation - @_deviceElevation
 
 		heading = @_heading
@@ -610,10 +594,10 @@ class exports.VRComponent extends Layer
 		else if heading > 360
 			heading -= 360
 
-		@emit(Events.OrientationDidChange, {heading: heading, elevation: @_elevation, tilt: @_tilt})
+		@_emitOrientationDidChangeEvent()
 
-	_emitOrientationDidChangeEvent: ->
-		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @_elevation, tilt: @_tilt})
+	_emitOrientationDidChangeEvent: =>
+		@emit(Events.OrientationDidChange, {heading: @heading, elevation: @elevation, tilt: @tilt})
 
 	# event shortcuts
 
