@@ -68,12 +68,13 @@ Events.OrientationDidChange = "orientationdidchange"
 class VRAnchorLayer extends Layer
 
 	constructor: (layer, cubeSide) ->
-		super undefined
+		super()
 		@width = 2
 		@height = 2
 		@clip = false
 		@name = "anchor"
 		@cubeSide = cubeSide
+		@backgroundColor = null
 
 		@layer = layer
 		layer.parent = @
