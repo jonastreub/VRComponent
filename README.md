@@ -10,6 +10,7 @@ Read more on the associated [blogpost](http://blog.framerjs.com/posts/design-vir
 - [Base setup](http://share.framerjs.com/ka167ltz631v/)
 - [Event data](http://share.framerjs.com/jz980s21ienj/)
 - [Space puzzle](http://share.framerjs.com/otx1jolma4u3/)
+- [Interactive resume](http://share.framerjs.com/ojd9q3dg5xem/) by [Jonathan](http://jonathanravasz.com)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the environment or by using your arrow keys.
 
@@ -51,7 +52,9 @@ To map your environment, you can look for cubemap images on the web. Each side i
 - **back** - negative-z
 
 ## Projecting Layers
-Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers with 3D space, you can use the **`projectLayer()`** method.
+Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers within the 3D space, you can use the **`projectLayer()`** method.
+
+![sherical projection](https://blog.framerjs.com/assets/static/images/vr/spherical.png)
 
 ##### VRLayers
 Any layer can be projected within your virtual environment, but if you'd like to adjust or animate their `heading` or `elevation` values later, you'll need to use a **`VRLayer`** instead.
@@ -110,11 +113,8 @@ The module has been tested on the following devices.
 
 Device | Performance
 ------ | -----------
+iPhone 7 | Great
 iPhone 6 | Good
 iPhone 6 Plus | Great
 iPhone 5C | Poor
 Nexus 5 | Poor
-
-## Future plans
-- Google Street View panoramas
-- Stereoscopic VR
