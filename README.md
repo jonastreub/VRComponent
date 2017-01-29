@@ -4,7 +4,7 @@ A virtual reality component for [Framer](http://framerjs.com). The virtual envir
 
 You can listen for orientation updates using the `onOrientationChange` event. This event contains information about heading, elevation and tilt.
 
-Read more on the associated [blogpost](http://blog.framerjs.com/posts/design-virtual-reality.html).
+Read more on the associated [blogpost](https://blog.framer.com/design-for-virtual-reality-b510b4641ca9#.jua87j76h).
 
 ## Examples
 - [Base setup](http://share.framerjs.com/ka167ltz631v/)
