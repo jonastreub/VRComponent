@@ -51,6 +51,8 @@ To map your environment, you can look for cubemap images on the web. Each side i
 - **bottom** - negative-y
 - **back** - negative-z
 
+Note: This [tool](http://gonchar.me/panorama/) can convert your spherical panoramas to a cubemap.
+
 ## Projecting Layers
 Creating a new Layer on top of your virtual environment will position them in 2D space by default. This is useful when looking to overlay interface elements, like sliders or printed values of heading, elevation or tilt. However, if you'd like to position layers within the 3D space, you can use the **`projectLayer()`** method.
 
