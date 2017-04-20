@@ -548,12 +548,11 @@ class exports.VRComponent extends Layer
 			velocityX *= ratio.x
 			velocityY *= ratio.y
 			strength = Utils.modulate(@perspective, [1200, 900], [22, 17.5])
-			velo = Math.floor(Math.sqrt(velocityX + velocityY) * 5) / strength
+
 			@animate
-				properties:
-					heading: @heading - (data.velocityX * ratio.x * 200) / strength
-					elevation: @elevation + (data.velocityY * ratio.y * 200) / strength
-				curve: "spring(300, 100, #{velo})"
+				heading: @heading - (data.velocityX * ratio.x * 200) / strength
+				elevation: @elevation + (data.velocityY * ratio.y * 200) / strength
+				options: curve: "spring(300,100)"
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubeSide = @cubeSide/2
