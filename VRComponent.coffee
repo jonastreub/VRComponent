@@ -139,7 +139,7 @@ class exports.VRComponent extends Layer
 	constructor: (options = {}) ->
 		options = _.defaults options,
 			cubeSide: 3000
-			perspective: 1200
+			perspective: 600
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
 			height: Screen.height
@@ -148,6 +148,7 @@ class exports.VRComponent extends Layer
 			mobilePanning: true
 			flat: true
 			clip: true
+		options.cubeSide /= Framer.CurrentContext.pixelMultiplier
 		super options
 
 		# to hide the seems where the cube surfaces come together we disable the viewport perspective and set a black background
@@ -438,12 +439,17 @@ class exports.VRComponent extends Layer
 
 			@directionParams(alpha, beta, gamma) if alpha isnt 0 and beta isnt 0 and gamma isnt 0
 
-			@world.midX = @midX
-			@world.midY = @midY
-			@world.z = @perspective
-			@world.rotation = -@_heading - @_headingOffset
-			@world.rotationX = 90 + @_elevation
-			@world.rotationY = @_tilt
+			xAngle = beta
+			yAngle = -gamma
+			zAngle = alpha
+
+			halfCubeSide = @cubeSide/2
+			orientation = "rotate(#{window.orientation * -1}deg) "
+			translationX = "translateX(#{((@width / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+			translationY = " translateY(#{((@height / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+			translationZ = " translateZ(#{@perspective * Framer.CurrentContext.pixelMultiplier}px)"
+			rotation = translationZ + translationX + translationY + orientation + " rotateY(#{yAngle}deg) rotateX(#{xAngle}deg) rotateZ(#{zAngle}deg)" + " rotateZ(#{-@_headingOffset}deg)"
+			@world.style["webkitTransform"] = rotation
 
 	directionParams: (alpha, beta, gamma) ->
 
@@ -556,6 +562,9 @@ class exports.VRComponent extends Layer
 
 	desktopPan: (deltaDir, deltaHeight) ->
 		halfCubeSide = @cubeSide/2
+		translationX = "translateX(#{((@width / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+		translationY = " translateY(#{((@height / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+		translationZ = " translateZ(#{@perspective * Framer.CurrentContext.pixelMultiplier}px)"
 		@_heading -= deltaDir
 
 		if @_heading > 360
@@ -566,23 +575,19 @@ class exports.VRComponent extends Layer
 		@_elevation += deltaHeight
 		@_elevation = Utils.clamp(@_elevation, -90, 90)
 
-		@world.midX = @midX
-		@world.midY = @midY
-		@world.z = @perspective
-		@world.rotationX = 90 + @_elevation
-		@world.rotation = -@_heading - @_headingOffset
+		rotation = translationZ + translationX + translationY + " rotateX(#{@_elevation + 90}deg) rotateZ(#{360 - @_heading}deg)" + " rotateZ(#{-@_headingOffset}deg)"
+		@world.style["webkitTransform"] = rotation
 
 		@_emitOrientationDidChangeEvent()
 
 	lookAt: (heading, elevation) ->
+		halfCubeSide = @cubeSide/2
+		translationX = "translateX(#{((@width / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+		translationY = " translateY(#{((@height / 2) - halfCubeSide) * Framer.CurrentContext.pixelMultiplier}px)"
+		translationZ = " translateZ(#{@perspective * Framer.CurrentContext.pixelMultiplier}px)"
+		rotation = translationZ + translationX + translationY + " rotateZ(#{@_tilt}deg) rotateX(#{elevation + 90}deg) rotateZ(#{-heading}deg)"
 
-		@world.midX = @midX
-		@world.midY = @midY
-		@world.z = @perspective
-		@world.rotationX = 90 + @_elevation
-		@world.rotation = -@_heading
-		@world.rotationY = @_tilt
-
+		@world?.style["webkitTransform"] = rotation
 		@_heading = heading
 		@_elevation = elevation
 		@_headingOffset = @_heading - @_deviceHeading if Utils.isMobile()
