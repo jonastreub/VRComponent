@@ -7,9 +7,9 @@ You can listen for orientation updates using the `onOrientationChange` event. Th
 Read more on the associated [blogpost](https://blog.framer.com/design-for-virtual-reality-b510b4641ca9#.jua87j76h).
 
 ## Examples
-- [Base setup](http://share.framerjs.com/ka167ltz631v/)
-- [Event data](http://share.framerjs.com/jz980s21ienj/)
-- [Space puzzle](http://share.framerjs.com/otx1jolma4u3/)
+- [Base setup](https://framer.cloud/pzkuO)
+- [Event data](https://framer.cloud/XaSrp)
+- [Space puzzle](https://framer.cloud/KdTnn)
 - [Interactive resume](http://share.framerjs.com/ojd9q3dg5xem/) by [Jonathan](http://jonathanravasz.com)
 
 On mobile the orientation is synced to that of your device. On desktop you can change the direction you are facing either by dragging the environment or by using your arrow keys.
