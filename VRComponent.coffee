@@ -87,12 +87,11 @@ class VRAnchorLayer extends Layer
 
 	updatePosition: (layer) ->
 		halfCubeSide = @cubeSide / 2
-		@midX = halfCubeSide
-		@midY = halfCubeSide
-		@z = -layer.distance
-		@originZ = layer.distance
-		@rotationX = -90 - layer.elevation
-		@rotationY = -layer.heading
+		dpr = Framer.CurrentContext.pixelMultiplier
+		x = ((@cubeSide - @width) / 2) * dpr
+		y = ((@cubeSide - @height) / 2) * dpr
+		z = layer.distance * dpr
+		@style.WebkitTransform = "translateX(#{x}px) translateY(#{y}px) rotateZ(#{layer.heading}deg) rotateX(#{90-layer.elevation}deg) translateZ(#{z}px) rotateX(180deg)"
 
 class exports.VRLayer extends Layer
 
