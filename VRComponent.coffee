@@ -89,7 +89,7 @@ class VRAnchorLayer extends Layer
 		halfCubeSide = @cubeSide / 2
 		@midX = halfCubeSide
 		@midY = halfCubeSide
-		@z = - layer.distance
+		@z = -layer.distance
 		@originZ = layer.distance
 		@rotationX = -90 - layer.elevation
 		@rotationY = -layer.heading
@@ -138,7 +138,7 @@ class exports.VRComponent extends Layer
 
 	constructor: (options = {}) ->
 		options = _.defaults options,
-			cubeSide: 3000
+			cubeSide: 1500
 			perspective: 600
 			lookAtLatestProjectedLayer: false
 			width: Screen.width
@@ -148,7 +148,6 @@ class exports.VRComponent extends Layer
 			mobilePanning: true
 			flat: true
 			clip: true
-		options.cubeSide /= Framer.CurrentContext.pixelMultiplier
 		super options
 
 		# to hide the seems where the cube surfaces come together we disable the viewport perspective and set a black background
@@ -364,7 +363,7 @@ class exports.VRComponent extends Layer
 		elevation = Utils.clamp(elevation, -90, 90)
 
 		distance = insertLayer.distance
-		distance = 1200 unless distance?
+		distance = 600 unless distance?
 
 		insertLayer.heading = heading
 		insertLayer.elevation = elevation
